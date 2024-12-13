@@ -1,19 +1,11 @@
-import React from "react";
+import { React, useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
+import Nav from "../components/Nav";
 
 function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
-      <nav className="bg-gradient-to-r from-purple-700 to-blue-900 px-8 py-4 flex justify-between items-center shadow-lg fixed top-0 left-0 right-0 z-10">
-        <div className="text-white text-2xl font-extrabold tracking-tight py-2 border-b border-gray-700">
-          <span className="text-blue-400 text-3xl font-semibold">Admin</span>
-          <span className="ml-1 text-white">Panel</span>
-        </div>
-
-        <button className="bg-gradient-to-r from-red-500 to-red-700 text-white px-5 py-2 rounded-lg shadow-md hover:bg-gradient-to-r hover:from-red-600 hover:to-red-800 transition duration-300 ease-in-out transform hover:scale-105">
-          Cerrar sesión
-        </button>
-      </nav>
+      <Nav />
 
       <div className="flex flex-1 pt-20">
         {" "}
