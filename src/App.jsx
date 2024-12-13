@@ -1,20 +1,19 @@
-// src/App.jsx
 import { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'; // Importar React Router
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'; 
 import './App.css';
-import Login from './pages/Login';
-import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+import Login from './pages/login';
+import Home from './pages/Home';
+// import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
-    <Router> {/* Este componente envuelve todo el enrutamiento */}
+    <Router> 
 
-        {/* Rutas */}
         <Routes>
-          <Route path="/login" element={<Login />} /> {/* Ruta a la página Home */}
+          <Route path="/" element={<Login />} /> 
+          <Route path="/home" element={<Home />} /> 
         </Routes>
         
     </Router>
