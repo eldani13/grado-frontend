@@ -7,6 +7,7 @@ import Productos from './pages/Productos';
 import Categorias from './pages/Categorias';
 import Reportes from './pages/Reportes';
 import Configuracion from './pages/Configuracion';
+import Factura from './pages/Factura';
 // import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 
 
@@ -18,8 +19,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} /> 
           <Route path="/home" element={<Home />} /> 
-          <Route path="/productos" element={<Productos />} /> 
           <Route path="/categorias" element={<Categorias />} /> 
+          <Route path="/productos" element={<Productos />} /> 
+          <Route path="/factura" element={<Factura />} /> 
           <Route path="/reportes" element={<Reportes />} /> 
           <Route path="/configuracion" element={<Configuracion />} /> 
         </Routes>

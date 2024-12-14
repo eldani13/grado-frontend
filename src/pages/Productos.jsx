@@ -12,7 +12,6 @@ function Productos() {
     const fakeData = [
       {
         id: 1,
-        factura: "00123",
         equipo: "Cámara 1.5",
         referencia: "CAM-0015",
         marca: "Sony",
@@ -20,7 +19,6 @@ function Productos() {
         cantidad: 10,
         descripcion: "Cámara de alta definición con visión nocturna.",
         fechaEntrada: "2024-12-01",
-        fechaSalida: "2024-12-10",
         estado: "En uso",
         observaciones: "Incluye garantía de 1 año.",
         poliza: "Garantía extendida",
@@ -30,7 +28,6 @@ function Productos() {
       },
       {
         id: 2,
-        factura: "00124",
         equipo: "Audífonos Bluetooth",
         referencia: "AUD-0200",
         marca: "JBL",
@@ -38,7 +35,6 @@ function Productos() {
         cantidad: 15,
         descripcion: "Audífonos con sonido envolvente y gran autonomía.",
         fechaEntrada: "2024-11-20",
-        fechaSalida: "2024-12-05",
         estado: "Disponible",
         observaciones: "Sin observaciones.",
         poliza: "No aplica",
@@ -51,7 +47,7 @@ function Productos() {
   }, []);
 
   const abrirModal = (producto) => {
-    setProductoSeleccionado({ ...producto }); // Clonamos el producto para editarlo sin modificar el original
+    setProductoSeleccionado({ ...producto });
     setModalOpen(true);
   };
 
@@ -147,16 +143,6 @@ function Productos() {
       <h2 className="text-xl font-semibold text-white">Editar Producto</h2>
       {productoSeleccionado && (
         <div>
-          <div className="mt-4">
-            <label className="text-gray-400">Factura</label>
-            <input
-              type="text"
-              name="factura"
-              value={productoSeleccionado.factura}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
 
           <div className="mt-4">
             <label className="text-gray-400">Equipo</label>
@@ -234,16 +220,6 @@ function Productos() {
             />
           </div>
 
-          <div className="mt-4">
-            <label className="text-gray-400">Fecha de Salida</label>
-            <input
-              type="date"
-              name="fechaSalida"
-              value={productoSeleccionado.fechaSalida}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
 
           <div className="mt-4">
             <label className="text-gray-400">Estado</label>

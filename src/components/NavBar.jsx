@@ -5,6 +5,7 @@ import {
   FolderIcon,
   ChartBarIcon,
   Cog6ToothIcon,
+  BanknotesIcon 
 } from "@heroicons/react/24/outline";
 
 export default function NavBar() {
@@ -13,16 +14,23 @@ export default function NavBar() {
   const menuItems = [
     { name: "Dashboard", icon: <HomeIcon className="h-6 w-6" />, path: "/home" },
     {
+      name: "Categorías",
+      icon: <FolderIcon className="h-6 w-6" />,
+      path: "/categorias",
+    },
+    {
       name: "Productos",
       icon: <ClipboardDocumentListIcon className="h-6 w-6" />,
       path: "/productos",
     },
     {
-      name: "Categorías",
-      icon: <FolderIcon className="h-6 w-6" />,
-      path: "/categorias",
+      name: "Factura",
+      icon: <BanknotesIcon className="h-6 w-6" />,
+      path: "/factura",
     },
-    { name: "Reportes", icon: <ChartBarIcon className="h-6 w-6" />, path: "/reportes" },
+    { name: "Reportes",
+      icon: <ChartBarIcon className="h-6 w-6" />,
+      path: "/reportes" },
     {
       name: "Configuración",
       icon: <Cog6ToothIcon className="h-6 w-6" />,
