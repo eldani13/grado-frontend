@@ -1,21 +1,16 @@
 import { React, useState } from "react";
 import NavBar from "../components/NavBar";
 import Nav from "../components/Nav";
-import { PlusIcon, ChartBarIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, ChartBarIcon, DocumentTextIcon, ArrowDownTrayIcon  } from "@heroicons/react/24/outline";
 
 function Reportes() {
-  const [tipos, setTipos] = useState([]);
-  const [nuevoTipo, setNuevoTipo] = useState("");
+  const [reportType, setReportType] = useState("general");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [filter, setFilter] = useState("");
 
-  const agregarTipo = () => {
-    if (nuevoTipo.trim() !== "") {
-      setTipos([...tipos, nuevoTipo]);
-      setNuevoTipo("");
-    }
-  };
-
-  const eliminarTipo = (tipo) => {
-    setTipos(tipos.filter((t) => t !== tipo));
+  const handleGenerateReport = () => {
+    console.log("Generating report:", { reportType, startDate, endDate, filter });
   };
 
   return (
@@ -25,66 +20,81 @@ function Reportes() {
       <div className="flex flex-1 pt-20">
         <NavBar />
         <main className="flex-1 p-8 overflow-auto ml-64">
-          <div className="pb-8 border-b border-gray-700">
-            <h1 className="text-4xl font-extrabold text-white">Generar Reportes</h1>
-            <p className="text-gray-400 mt-2">
-              Crea y gestiona los tipos de reportes para analizar los datos de forma profesional.
-            </p>
+          <div className="mb-8">
+            <h1 className="text-4xl font-extrabold">
+              Generador de Reportes
+            </h1>
+            <p className="text-gray-400">Crea reportes personalizados con filtros avanzados y exporta tus datos fácilmente.</p>
           </div>
 
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold text-white mb-4">Agregar Tipo de Reporte</h2>
-            <div className="flex gap-4 items-center mb-6">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">Tipo de reporte</label>
+              <select
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value)}
+                className="w-full bg-gray-900 border border-gray-700 text-gray-300 rounded-md px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="general">Reporte General</option>
+                <option value="stock">Reporte de Stock</option>
+                <option value="movements">Reporte de Movimientos</option>
+                <option value="sales">Reporte de Ventas</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Fecha de inicio</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full bg-gray-900 border border-gray-700 text-gray-300 rounded-md px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Fecha de fin</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full bg-gray-900 border border-gray-700 text-gray-300 rounded-md px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">Filtrar por</label>
               <input
                 type="text"
-                value={nuevoTipo}
-                onChange={(e) => setNuevoTipo(e.target.value)}
-                placeholder="Escribe el nombre del tipo de reporte"
-                className="flex-1 px-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                placeholder="Ejemplo: Producto, Categoría, Usuario"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="w-full bg-gray-900 border border-gray-700 text-gray-300 rounded-md px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
               />
+            </div>
+
+            <div className="flex items-center gap-4">
               <button
-                onClick={agregarTipo}
-                className="flex items-center bg-gradient-to-r from-blue-500 to-blue-700 text-white px-5 py-3 rounded-lg shadow-md hover:from-blue-600 hover:to-blue-800 transition-all duration-300 transform hover:scale-105"
+                onClick={handleGenerateReport}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-md text-white font-medium shadow-md"
               >
-                <PlusIcon className="h-6 w-6 mr-2" /> Agregar
+                <ChartBarIcon className="h-5 w-5" /> Generar Reporte
+              </button>
+              <button
+                onClick={() => console.log("Exporting report")}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-2 rounded-md text-white font-medium shadow-md"
+              >
+                <ArrowDownTrayIcon className="h-5 w-5" /> Exportar PDF
               </button>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tipos.map((tipo, index) => (
-                <div
-                  key={index}
-                  className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 hover:shadow-2xl hover:scale-105 transition-transform duration-300"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                    <ChartBarIcon className="h-8 w-8 text-blue-400 mr-3" />
-                      <h3 className="text-xl font-bold text-white">{tipo}</h3>
-                    </div>
-                    <button
-                      onClick={() => eliminarTipo(tipo)}
-                      className="text-red-500 hover:text-red-700 transition-colors"
-                    >
-                      <TrashIcon className="h-6 w-6" />
-                    </button>
-                  </div>
-                  <p className="text-gray-300 mt-4">
-                    Genera reportes personalizados para el tipo: <span className="text-blue-400">{tipo}</span>.
-                  </p>
-                  <button
-                    className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg shadow-md hover:bg-blue-600 transition-all duration-300"
-                  >
-                    Generar Reporte
-                  </button>
-                </div>
-              ))}
+          <div className="mt-10">
+            <h2 className="text-2xl font-semibold text-gray-300 mb-4">Vista Previa</h2>
+            <div className="bg-gray-900 p-4 rounded-md shadow-lg h-64 flex items-center justify-center text-gray-500">
+              <p>La vista previa del reporte aparecerá aquí.</p>
             </div>
-
-            {tipos.length === 0 && (
-              <p className="text-gray-400 mt-6 text-center">
-                No hay tipos de reportes creados. Comienza agregando uno.
-              </p>
-            )}
           </div>
         </main>
       </div>
