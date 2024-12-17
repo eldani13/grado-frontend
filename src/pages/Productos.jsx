@@ -6,70 +6,107 @@ import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/outline";
 function Productos() {
   const [productos, setProductos] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [detalleModalOpen, setDetalleModalOpen] = useState(false);
+  const [categorias, setCategorias] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [nuevoProducto, setNuevoProducto] = useState({
+    equipo: "",
+    referencia: "",
+    marca: "",
+    serial: "",
+    cantidad: 1,
+    descripcion: "",
+    categoria: "", 
+    fecha_entrada: "", 
+    valor: 0,
+    observaciones: "",
+    estado: "", 
+  });
+
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
-    const fakeData = [
-      {
-        id: 1,
-        equipo: "Cámara 1.5",
-        referencia: "CAM-0015",
-        marca: "Sony",
-        serial: "SN12345",
-        cantidad: 10,
-        descripcion: "Cámara de alta definición con visión nocturna.",
-        fechaEntrada: "2024-12-01",
-        estado: "En uso",
-        observaciones: "Incluye garantía de 1 año.",
-        poliza: "Garantía extendida",
-        valor: "$1,500",
-        categoria: "Sonido",
-        image: "https://via.placeholder.com/200",
-      },
-      {
-        id: 2,
-        equipo: "Audífonos Bluetooth",
-        referencia: "AUD-0200",
-        marca: "JBL",
-        serial: "SN67890",
-        cantidad: 15,
-        descripcion: "Audífonos con sonido envolvente y gran autonomía.",
-        fechaEntrada: "2024-11-20",
-        estado: "Disponible",
-        observaciones: "Sin observaciones.",
-        poliza: "No aplica",
-        valor: "$200",
-        categoria: "Sonido",
-        image: "https://via.placeholder.com/200",
-      },
-    ];
-    setProductos(fakeData);
-  }, []);
+    const fetchProductos = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/inventario/productos/`);
+        const data = await response.json();
+        setProductos(data);
+      } catch (error) {
+        console.error("Error al obtener los productos:", error);
+      }
+    };
 
-  const abrirModal = (producto) => {
-    setProductoSeleccionado({ ...producto });
+    fetchProductos();
+  }, [API_URL]);
+
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/inventario/categorias/`);
+        const data = await response.json();
+        setCategorias(data);
+      } catch (error) {
+        console.error("Error al obtener las categorías:", error);
+      }
+    };
+
+    fetchCategorias();
+  }, [API_URL]);
+
+  const abrirModal = () => {
     setModalOpen(true);
   };
 
   const cerrarModal = () => {
     setModalOpen(false);
-    setProductoSeleccionado(null);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProductoSeleccionado((prevState) => ({
+    setNuevoProducto((prevState) => ({
       ...prevState,
       [name]: value,
     }));
   };
 
-  const handleSave = () => {
-    const updatedProductos = productos.map((producto) =>
-      producto.id === productoSeleccionado.id ? productoSeleccionado : producto
-    );
-    setProductos(updatedProductos);
-    cerrarModal();
+  const handleSave = async () => {
+    const fecha = new Date(nuevoProducto.fecha_entrada);
+    const fechaEntradaFormateada = fecha.toISOString().split('T')[0];  
+  
+    const productoConFechaCorregida = {
+      ...nuevoProducto,
+      fecha_entrada: fechaEntradaFormateada,
+    };
+  
+    try {
+      const response = await fetch(`${API_URL}/api/inventario/productos/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productoConFechaCorregida),  
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        setProductos([...productos, data]);
+        cerrarModal();
+      } else {
+        const errorData = await response.json();
+        console.error("Error al guardar el producto:", errorData);
+      }
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
+  };
+  
+  
+  const abrirDetalleModal = (producto) => {
+    setProductoSeleccionado(producto);
+    setDetalleModalOpen(true);
+  };
+
+  const cerrarDetalleModal = () => {
+    setDetalleModalOpen(false);
+    setProductoSeleccionado(null);
   };
 
   return (
@@ -89,7 +126,10 @@ function Productos() {
                   className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
-              <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+              <button
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                onClick={abrirModal}
+              >
                 <PlusIcon className="h-6 w-6 mr-2" />
                 Agregar Producto
               </button>
@@ -100,37 +140,30 @@ function Productos() {
             {productos.map((producto) => (
               <div
                 key={producto.id}
-                className="bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col items-center"
+                className="bg-gray-800 rounded-lg shadow-lg p-6 relative"
               >
                 <img
-                  src={producto.image}
-                  alt={producto.equipo}
+                  src="https://via.placeholder.com/200"
+                  alt="Producto"
                   className="h-40 w-40 object-cover rounded-lg"
                 />
-                <h2 className="mt-4 text-xl font-semibold text-white">
-                  {producto.equipo}
-                </h2>
-
-                <ul className="text-gray-400 mt-2 text-sm text-left w-full">
-                  <li>
-                    <strong>Serial:</strong> {producto.serial}
-                  </li>
-                  <li>
-                    <strong>Cantidad:</strong> {producto.cantidad}
-                  </li>
-                  <li>
-                    <strong>Estado:</strong> {producto.estado}
-                  </li>
-                </ul>
-                <span className="text-lg font-bold text-blue-400 mt-4">
-                  {producto.valor}
-                </span>
-                <button
-                  onClick={() => abrirModal(producto)}
-                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                >
-                  Ver detalles
-                </button>
+                <div>
+                  <h2 className="text-xl font-bold">{producto.equipo}</h2>
+                  <p>
+                    <strong>Referencia:</strong> {producto.referencia}
+                  </p>
+                  <p>
+                    <strong>Marca:</strong> {producto.marca}
+                  </p>
+                </div>
+                <div>
+                  <button
+                    onClick={() => abrirDetalleModal(producto)}
+                    className="absolute bottom-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700"
+                  >
+                    Ver Detalle
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -138,162 +171,169 @@ function Productos() {
       </div>
 
       {modalOpen && (
-  <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-gray-800 p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto">
-      <h2 className="text-xl font-semibold text-white">Editar Producto</h2>
-      {productoSeleccionado && (
-        <div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Equipo</label>
-            <input
-              type="text"
-              name="equipo"
-              value={productoSeleccionado.equipo}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Referencia</label>
-            <input
-              type="text"
-              name="referencia"
-              value={productoSeleccionado.referencia}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Marca</label>
-            <input
-              type="text"
-              name="marca"
-              value={productoSeleccionado.marca}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Serial</label>
-            <input
-              type="text"
-              name="serial"
-              value={productoSeleccionado.serial}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Cantidad</label>
-            <input
-              type="number"
-              name="cantidad"
-              value={productoSeleccionado.cantidad}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Descripción</label>
-            <textarea
-              name="descripcion"
-              value={productoSeleccionado.descripcion}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Fecha de Entrada</label>
-            <input
-              type="date"
-              name="fechaEntrada"
-              value={productoSeleccionado.fechaEntrada}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-
-          <div className="mt-4">
-            <label className="text-gray-400">Estado</label>
-            <input
-              type="text"
-              name="estado"
-              value={productoSeleccionado.estado}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Observaciones</label>
-            <textarea
-              name="observaciones"
-              value={productoSeleccionado.observaciones}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Póliza</label>
-            <input
-              type="text"
-              name="poliza"
-              value={productoSeleccionado.poliza}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4">
-            <label className="text-gray-400">Valor</label>
-            <input
-              type="text"
-              name="valor"
-              value={productoSeleccionado.valor}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-          <div className="mt-4">
-            <label className="text-gray-400">Categoria</label>
-            <input
-              type="text"
-              name="valor"
-              value={productoSeleccionado.categoria}
-              onChange={handleChange}
-              className="w-full p-2 mt-2 bg-gray-700 text-gray-300 rounded-md"
-            />
-          </div>
-
-          <div className="mt-4 flex gap-4">
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-gray-800 p-6 rounded-lg w-[800px] max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold">Crear Producto</h2>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="mt-4">
+                <label className="text-gray-400">Equipo</label>
+                <input
+                  type="text"
+                  name="equipo"
+                  value={nuevoProducto.equipo}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Referencia</label>
+                <input
+                  type="text"
+                  name="referencia"
+                  value={nuevoProducto.referencia}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Marca</label>
+                <input
+                  type="text"
+                  name="marca"
+                  value={nuevoProducto.marca}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Serial</label>
+                <input
+                  type="text"
+                  name="serial"
+                  value={nuevoProducto.serial}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Categoría</label>
+                <select
+                  name="categoria"
+                  value={nuevoProducto.categoria}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                >
+                  <option value="">Selecciona una categoría</option>
+                  {categorias.map((categoria) => (
+                    <option key={categoria.id} value={categoria.id}>
+                      {categoria.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Fecha de Entrada</label>
+                <input
+                  type="date"
+                  name="fecha_entrada"
+                  value={nuevoProducto.fecha_entrada}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Estado</label>
+                <select
+                  name="estado"
+                  value={nuevoProducto.estado}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                >
+                  <option value="">Selecciona un estado</option>
+                  <option value="disponible">Disponible</option>
+                  <option value="prestado">Prestado</option>
+                  <option value="en_mantenimiento">En Mantenimiento</option>
+                  <option value="retirado">Retirado</option>
+                </select>
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Cantidad</label>
+                <input
+                  type="number"
+                  name="cantidad"
+                  value={nuevoProducto.cantidad}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Valor</label>
+                <input
+                  type="number"
+                  name="valor"
+                  value={nuevoProducto.valor}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Observaciones</label>
+                <input
+                  type="text"
+                  name="observaciones"
+                  value={nuevoProducto.observaciones}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="text-gray-400">Descripción</label>
+                <input
+                  type="text"
+                  name="descripcion"
+                  value={nuevoProducto.descripcion}
+                  onChange={handleChange}
+                  className="w-full p-2 bg-gray-700 text-gray-300 rounded-md"
+                />
+              </div>
+            </div>
             <button
               onClick={handleSave}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+              className="mt-4 bg-blue-600 px-4 py-2 rounded-md"
             >
-              Guardar cambios
+              Guardar
             </button>
             <button
               onClick={cerrarModal}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+              className="ml-4 bg-red-600 px-4 py-2 rounded-md"
             >
               Cancelar
             </button>
           </div>
         </div>
       )}
-    </div>
-  </div>
-)}
 
+      {detalleModalOpen && productoSeleccionado && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-gray-800 p-6 rounded-lg w-[800px] max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold">Detalles del Producto</h2>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {Object.entries(productoSeleccionado).map(([key, value]) => (
+                <div key={key}>
+                  <strong className="text-gray-400 capitalize">{key}:</strong>
+                  <p className="text-white">{value}</p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={cerrarDetalleModal}
+              className="mt-4 bg-red-600 px-4 py-2 rounded-md"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

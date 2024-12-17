@@ -22,7 +22,7 @@ const generarFacturaPDF = async (factura) => {
     return;
   }
 
-  const precioUnidad = factura.precioUnidad && !isNaN(factura.precioUnidad) ? factura.precioUnidad.toFixed(2) : "0.00";
+  const precioUnidad = factura.valor && !isNaN(factura.valor) ? factura.valor.toFixed(2) : "0.00";
   const precioTotal = factura.precioTotal && !isNaN(factura.precioTotal) ? factura.precioTotal.toFixed(2) : "0.00";
 
   const docDefinition = {
@@ -209,7 +209,7 @@ const generarFacturaPDF = async (factura) => {
 
   pdfMake
     .createPdf(docDefinition)
-    .download(`Factura_${factura.numeroFactura}.pdf`);
+    .download(`Factura_${factura.numero_factura}.pdf`);
 };
 
 export default generarFacturaPDF;
