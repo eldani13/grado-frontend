@@ -23,7 +23,7 @@ const generarFacturaPDF = async (factura) => {
   }
 
   const precioUnidad = factura.valor && !isNaN(factura.valor) ? factura.valor.toFixed(2) : "0.00";
-  const precioTotal = factura.precioTotal && !isNaN(factura.precioTotal) ? factura.precioTotal.toFixed(2) : "0.00";
+  const total = factura.total && !isNaN(factura.total) ? factura.total.toFixed(2) : "0.00";
 
   const docDefinition = {
     background: [
@@ -70,19 +70,19 @@ const generarFacturaPDF = async (factura) => {
         columns: [
           {
             width: "50%",
-            text: `Número de Factura: ${factura.numeroFactura}`,
+            text: `Número de Factura: ${factura.numero_factura}`,
             style: "subheader",
           },
           {
             width: "50%",
-            text: `Fecha de Entrada: ${factura.fechaEntrada || "N/A"}`,
+            text: `Fecha de Entrada: ${factura.fecha_entrada || "N/A"}`,
             style: "subheader",
             alignment: "right",
           },
         ],
       },
       {
-        text: `Fecha de Salida: ${factura.fechaSalida || "N/A"}`,
+        text: `Fecha de Salida: ${factura.fecha_salida || "N/A"}`,
         style: "subheader",
         alignment: "right",
       },
@@ -166,7 +166,7 @@ const generarFacturaPDF = async (factura) => {
             [
               factura.poliza || "N/A",
               `$${precioUnidad}`,
-              `$${precioTotal}`,
+              `$${total}`,
             ],
           ],
         },

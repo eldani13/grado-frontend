@@ -27,7 +27,7 @@ function Factura() {
     observaciones: "",
     poliza: "",
     valor: "",
-    precioTotal: "",
+    total: "",
   });
 
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -77,7 +77,7 @@ function Factura() {
         observaciones: selectedProducto.observaciones,
         poliza: selectedProducto.poliza,
         valor: selectedProducto.valor, 
-        precioTotal: (selectedProducto.valor * (formData.cantidad || 0)).toFixed(2) 
+        total: (selectedProducto.valor * (formData.cantidad || 0)).toFixed(2) 
       });
     }
   };
@@ -88,7 +88,7 @@ function Factura() {
     setFormData({
       ...formData,
       cantidad,
-      precioTotal: (formData.valor * cantidad).toFixed(2) 
+      total: (formData.valor * cantidad).toFixed(2) 
     });
   };
   
@@ -136,7 +136,7 @@ function Factura() {
       observaciones: formData.observaciones,
       poliza: formData.poliza,
       precio_unidad: formData.valor,
-      precio_total: formData.precioTotal
+      precio_total: formData.total
     };
   
     try {
@@ -168,7 +168,7 @@ function Factura() {
         observaciones: "",
         poliza: "",
         valor: "",
-        precioTotal: "",
+        total: "",
       });
   
       setModalOpen(false);
@@ -232,7 +232,7 @@ function Factura() {
                   <td className="py-2 px-4">{factura.observaciones}</td>
                   <td className="py-2 px-4">{factura.poliza}</td>
                   <td className="py-2 px-4">${factura.valor}</td>
-                  <td className="py-2 px-4">${factura.precioTotal}</td>
+                  <td className="py-2 px-4">${factura.total}</td>
                   <td className="py-2 px-4">
                     <button
                       onClick={() => generarFacturaPDF(factura)}
