@@ -37,8 +37,8 @@ function Reportes() {
               >
                 <option value="general">Reporte General</option>
                 <option value="stock">Reporte de Stock</option>
-                <option value="movements">Reporte de Movimientos</option>
-                <option value="sales">Reporte de Ventas</option>
+                <option value="movements">Reporte de Actividades</option>
+                <option value="sales">Reporte de Facturas</option>
               </select>
             </div>
 

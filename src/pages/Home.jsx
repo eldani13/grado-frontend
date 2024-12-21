@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import Nav from "../components/Nav";
-import { Bar } from 'react-chartjs-2'; // Importamos el gráfico de barras
+import { Bar } from 'react-chartjs-2'; 
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,14 +13,15 @@ import {
 } from 'chart.js';
 import { color } from "chart.js/helpers";
 
-// Registramos los componentes necesarios de Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function Home() {
   const [totalProductos, setTotalProductos] = useState(0);
   const [totalCategorias, setTotalCategorias] = useState(0);
   const [stockBajo, setStockBajo] = useState(0);
-  const [ventasSemanales, setVentasSemanales] = useState([]); // Nueva variable para ventas semanales
+  const [ventasSemanales, setVentasSemanales] = useState([]);
+  const [ventasTotales, setVentasTotales] = useState(0);
+  const [actividades, setActividades] = useState([]);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -48,15 +49,49 @@ function Home() {
 
   const fetchVentasSemanales = async () => {
     try {
-      // Simulando un endpoint de ventas semanales
       const response = await fetch(`${API_BASE_URL}/api/inventario/ventas/`);
       const data = await response.json();
 
-      // Suponiendo que la API devuelve un array con las ventas de los últimos 7 días
-      const ventas = data.map(venta => venta.total); // Ejemplo: [1200, 900, 750, 1800, 2100, 1750, 2200]
+      const ventas = data.map(venta => venta.total);
       setVentasSemanales(ventas);
     } catch (error) {
       console.error("Error al obtener ventas semanales:", error);
+    }
+  };
+
+  const fetchActividades = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/inventario/actividades/`);
+      const data = await response.json();
+
+      const mensajes = data.map((actividad) => {
+        switch (actividad.tipo) {
+          case "venta":
+            return `Se registró una nueva venta de $${actividad.descripcion || "0"}.`;
+          case "actualizacion":
+            return `Se actualizó el producto: ${actividad.descripcion || "desconocido"}.`;
+          case "factura":
+            return `Se emitió una factura: ${actividad.factura || "desconocida"}.`;
+          case "otro":
+            return `Actividad registrada: ${actividad.descripcion || "sin descripción"}.`;
+          default:
+            return "Actividad desconocida.";
+        }
+      });
+
+      setActividades(mensajes);
+    } catch (error) {
+      console.error("Error al obtener actividades:", error);
+    }
+  };
+
+  const fetchResumen = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/inventario/resumen/`);
+      const data = await response.json();
+      setVentasTotales(data.ventas_totales); 
+    } catch (error) {
+      console.error("Error al obtener el resumen:", error);
     }
   };
 
@@ -64,6 +99,8 @@ function Home() {
     fetchProductos();
     fetchCategorias();
     fetchVentasSemanales();
+    fetchResumen();
+    fetchActividades();
   }, []);
 
   const data = {
@@ -140,7 +177,7 @@ function Home() {
               <h3 className="text-sm font-semibold text-gray-300">
                 Ventas totales
               </h3>
-              <p className="text-3xl font-bold text-white">$9,200.00</p>
+              <p className="text-3xl font-bold text-white">${ventasTotales.toLocaleString()}</p>
             </div>
             <div className="p-6 bg-gradient-to-br from-orange-800 to-orange-900 rounded-xl shadow-xl">
               <h3 className="text-sm font-semibold text-gray-300">
@@ -160,22 +197,17 @@ function Home() {
           </div>
 
           <div className="mt-8 bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-xl shadow-xl">
-            <h3 className="text-xl font-bold mb-4 text-gray-200">
-              Actividad Reciente
-            </h3>
+            <h3 className="text-xl font-bold mb-4 text-gray-200">Actividad Reciente</h3>
             <ul className="space-y-4">
-              <li className="text-gray-300">
-                Se agregó un nuevo producto:{" "}
-                <span className="font-bold text-white">Producto X</span>.
-              </li>
-              <li className="text-gray-300">
-                Se actualizó el stock de{" "}
-                <span className="font-bold text-white">Producto Y</span>.
-              </li>
-              <li className="text-gray-300">
-                Se registró una nueva venta de{" "}
-                <span className="font-bold text-white">$500</span>.
-              </li>
+              {actividades.length > 0 ? (
+                actividades.map((mensaje, index) => (
+                  <li key={index} className="text-gray-300">
+                    {mensaje}
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-500">No hay actividades recientes.</li>
+              )}
             </ul>
           </div>
         </main>
