@@ -5,38 +5,35 @@ import {
   FolderIcon,
   ChartBarIcon,
   Cog6ToothIcon,
-  BanknotesIcon 
+  BanknotesIcon,
+  ShoppingCartIcon
 } from "@heroicons/react/24/outline";
 
 export default function NavBar() {
   const location = useLocation();
 
-  const menuItems = [
-    { name: "Dashboard", icon: <HomeIcon className="h-6 w-6" />, path: "/home" },
-    {
-      name: "Categorías",
-      icon: <FolderIcon className="h-6 w-6" />,
-      path: "/categorias",
-    },
-    {
-      name: "Productos",
-      icon: <ClipboardDocumentListIcon className="h-6 w-6" />,
-      path: "/productos",
-    },
-    {
-      name: "Factura",
-      icon: <BanknotesIcon className="h-6 w-6" />,
-      path: "/factura",
-    },
-    { name: "Reportes",
-      icon: <ChartBarIcon className="h-6 w-6" />,
-      path: "/reportes" },
-    {
-      name: "Configuración",
-      icon: <Cog6ToothIcon className="h-6 w-6" />,
-      path: "/configuracion",
-    },
-  ];
+  const userRole = localStorage.getItem("rol");
+
+  const menuItemsByRole = {
+    cliente: [
+      { name: "Dashboard", icon: <HomeIcon className="h-6 w-6" />, path: "/home" },
+      { name: "Productos", icon: <ClipboardDocumentListIcon className="h-6 w-6" />, path: "/productos" },
+      { name: "Pedidos", icon: <ShoppingCartIcon className="h-6 w-6" />, path: "/pedidos" },
+      { name: "Factura", icon: <BanknotesIcon className="h-6 w-6" />, path: "/factura" },
+      { name: "Configuración", icon: <Cog6ToothIcon className="h-6 w-6" />, path: "/configuracion" },
+    ],
+    admin: [
+      { name: "Dashboard", icon: <HomeIcon className="h-6 w-6" />, path: "/home" },
+      { name: "Categorías", icon: <FolderIcon className="h-6 w-6" />, path: "/categorias" },
+      { name: "Productos", icon: <ClipboardDocumentListIcon className="h-6 w-6" />, path: "/productos" },
+      { name: "Pedidos", icon: <ShoppingCartIcon className="h-6 w-6" />, path: "/pedidos" },
+      { name: "Factura", icon: <BanknotesIcon className="h-6 w-6" />, path: "/factura" },
+      { name: "Reportes", icon: <ChartBarIcon className="h-6 w-6" />, path: "/reportes" },
+      { name: "Configuración", icon: <Cog6ToothIcon className="h-6 w-6" />, path: "/configuracion" },
+    ],
+  };
+
+  const menuItems = menuItemsByRole[userRole] || [];
 
   return (
     <aside className="fixed top-0 left-0 w-64 h-screen bg-gradient-to-tr from-gray-900 via-gray-800 to-gray-700 shadow-lg overflow-hidden">

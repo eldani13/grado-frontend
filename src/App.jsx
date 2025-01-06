@@ -8,6 +8,8 @@ import Categorias from './pages/Categorias';
 import Reportes from './pages/Reportes';
 import Configuracion from './pages/Configuracion';
 import Factura from './pages/Factura';
+import Pedidos from './pages/Pedidos';
+import Formulario from './forms/Formulario';
 // import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 
 
@@ -18,12 +20,14 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Login />} /> 
+          <Route path="/formulario" element={<Formulario />} /> 
           <Route path="/home" element={<Home />} /> 
           <Route path="/categorias" element={<Categorias />} /> 
           <Route path="/productos" element={<Productos />} /> 
           <Route path="/factura" element={<Factura />} /> 
           <Route path="/reportes" element={<Reportes />} /> 
           <Route path="/configuracion" element={<Configuracion />} /> 
+          <Route path="/pedidos" element={<Pedidos />} /> 
         </Routes>
         
     </Router>

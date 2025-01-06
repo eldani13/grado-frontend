@@ -211,9 +211,11 @@ function Factura() {
                 <th className="border-b border-gray-700 py-2 px-4">Fecha Salida</th>
                 <th className="border-b border-gray-700 py-2 px-4">Estado</th>
                 <th className="border-b border-gray-700 py-2 px-4">Observacion</th>
-                <th className="border-b border-gray-700 py-2 px-4">Poliza</th>
+                {/* <th className="border-b border-gray-700 py-2 px-4">Poliza</th> */}
                 <th className="border-b border-gray-700 py-2 px-4">Precio Unidad</th>
                 <th className="border-b border-gray-700 py-2 px-4">Precio Total</th>
+                <th className="border-b border-gray-700 py-2 px-4">PDF</th>
+
               </tr>
             </thead>
             <tbody>
@@ -230,7 +232,7 @@ function Factura() {
                   <td className="py-2 px-4">{factura.fecha_salida}</td>
                   <td className="py-2 px-4">{factura.estado}</td>
                   <td className="py-2 px-4">{factura.observaciones}</td>
-                  <td className="py-2 px-4">{factura.poliza}</td>
+                  {/* <td className="py-2 px-4">{factura.poliza}</td> */}
                   <td className="py-2 px-4">${factura.valor}</td>
                   <td className="py-2 px-4">${factura.total}</td>
                   <td className="py-2 px-4">

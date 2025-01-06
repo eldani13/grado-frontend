@@ -15,6 +15,8 @@ export default function Nav() {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     localStorage.removeItem("username");
+    localStorage.removeItem("rol");
+
     navigate("/");
   };
   return (

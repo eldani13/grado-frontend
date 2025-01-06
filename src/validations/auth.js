@@ -11,6 +11,8 @@ export const login = async (username, password) => {
     localStorage.setItem("access", response.data.access);
     localStorage.setItem("refresh", response.data.refresh);
     localStorage.setItem("username", response.data.username);
+    localStorage.setItem("rol", response.data.rol);
+
     return response.data;
   } catch (error) {
     console.error("Error logging in:", error.response?.data || error.message);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import Nav from "../components/Nav";
-import { Bar } from 'react-chartjs-2'; 
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,111 +9,189 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
-} from 'chart.js';
+  Legend,
+} from "chart.js";
 import { color } from "chart.js/helpers";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function Home() {
   const [totalProductos, setTotalProductos] = useState(0);
   const [totalCategorias, setTotalCategorias] = useState(0);
   const [stockBajo, setStockBajo] = useState(0);
-  const [ventasSemanales, setVentasSemanales] = useState([]);
+  const [ventasDiarias, setVentasDiarias] = useState([]);
   const [ventasTotales, setVentasTotales] = useState(0);
+  const [totalDelDia, setTotalDelDia] = useState(0);
   const [actividades, setActividades] = useState([]);
+  const [labelsFiltrados, setLabelsFiltrados] = useState([]);
+  const [dataFiltrada, setDataFiltrada] = useState([]);
+  const [pedidosPendientes, setPedidosPendientes] = useState(0);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const userRole = localStorage.getItem("rol");
 
   const fetchProductos = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/inventario/productos/`);
+      if (!response.ok) throw new Error("Error al obtener productos");
       const data = await response.json();
-      setTotalProductos(data.length); 
-      const stockBajoCount = data.filter(producto => producto.cantidad < 5).length; 
+      setTotalProductos(data.length);
+      const stockBajoCount = data.filter(
+        (producto) => producto.cantidad < 5
+      ).length;
       setStockBajo(stockBajoCount);
     } catch (error) {
-      console.error("Error al obtener productos:", error);
+      console.error(error.message);
     }
   };
 
   const fetchCategorias = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/inventario/categorias/`);
+      const response = await fetch(
+        `${API_BASE_URL}/api/inventario/categorias/`
+      );
+      if (!response.ok) throw new Error("Error al obtener categorías");
       const data = await response.json();
       setTotalCategorias(data.length);
     } catch (error) {
-      console.error("Error al obtener categorías:", error);
+      console.error(error.message);
     }
   };
 
-  const fetchVentasSemanales = async () => {
+  const fetchPedidos = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/inventario/ventas/`);
-      const data = await response.json();
+      const response = await fetch(`${API_BASE_URL}/api/pedidos/pedidos/`);
+      if (!response.ok) throw new Error("Error al obtener los pedidos");
 
-      const ventas = data.map(venta => venta.total);
-      setVentasSemanales(ventas);
+      const data = await response.json();
+      const totalPedidos = data.length;
+      setPedidosPendientes(totalPedidos);
     } catch (error) {
-      console.error("Error al obtener ventas semanales:", error);
+      console.error(error.message);
     }
   };
 
   const fetchActividades = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/inventario/actividades/`);
+      const response = await fetch(
+        `${API_BASE_URL}/api/inventario/actividades/`
+      );
+      if (!response.ok) throw new Error("Error al obtener actividades");
       const data = await response.json();
-
       const mensajes = data.map((actividad) => {
         switch (actividad.tipo) {
           case "venta":
-            return `Se registró una nueva venta de $${actividad.descripcion || "0"}.`;
+            return `Se registró una nueva factura $${
+              actividad.factura_numero || "0"
+            }.`;
           case "actualizacion":
-            return `Se actualizó el producto: ${actividad.descripcion || "desconocido"}.`;
+            return `Se actualizó el producto: ${
+              actividad.descripcion || "desconocido"
+            }.`;
           case "factura":
-            return `Se emitió una factura: ${actividad.factura || "desconocida"}.`;
+            return `Se emitió una factura: ${
+              actividad.factura || "desconocida"
+            }.`;
           case "otro":
-            return `Actividad registrada: ${actividad.descripcion || "sin descripción"}.`;
+            return `Actividad registrada: ${
+              actividad.descripcion || "sin descripción"
+            }.`;
           default:
             return "Actividad desconocida.";
         }
       });
-
       setActividades(mensajes);
     } catch (error) {
-      console.error("Error al obtener actividades:", error);
+      console.error(error.message);
     }
   };
 
   const fetchResumen = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/inventario/resumen/`);
+      if (!response.ok) throw new Error("Error al obtener el resumen");
+
       const data = await response.json();
-      setVentasTotales(data.ventas_totales); 
+      const resumen = data.datos || {};
+
+      setVentasTotales(resumen.ventas_totales || 0);
+      setTotalDelDia(resumen.total_del_dia || 0);
+
+      const diaActual = new Date().getDay();
+      const diasSemana = [
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado",
+        "Domingo",
+      ];
+
+      const ventasDistribuidas = diasSemana.map((_, index) =>
+        index < diaActual ? resumen.total_del_dia / (diaActual || 1) : 0
+      );
+
+      setVentasDiarias(ventasDistribuidas);
     } catch (error) {
-      console.error("Error al obtener el resumen:", error);
+      console.error(error.message);
     }
   };
 
   useEffect(() => {
     fetchProductos();
     fetchCategorias();
-    fetchVentasSemanales();
     fetchResumen();
     fetchActividades();
+    fetchPedidos();
   }, []);
 
+  useEffect(() => {
+    const diasSemana = [
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+      "Domingo",
+    ];
+
+    const diaActual = new Date().getDay();
+    const ultimoDiaGuardado = localStorage.getItem("ultimoDiaGuardado");
+
+    if (ultimoDiaGuardado !== `${diaActual}`) {
+      localStorage.setItem("ultimoDiaGuardado", `${diaActual}`);
+      setVentasDiarias(Array(7).fill(0));
+      setLabelsFiltrados(diasSemana);
+    } else {
+      const ventasCompletas = diasSemana.map(
+        (_, index) => ventasDiarias[index] || 0
+      );
+      setLabelsFiltrados(diasSemana);
+      setDataFiltrada(ventasCompletas);
+    }
+  }, [ventasDiarias]);
+
   const data = {
-    labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'], 
+    labels: labelsFiltrados,
     datasets: [
       {
-        label: 'Ventas Diarias ($)',
-        data: ventasSemanales, 
-        backgroundColor: '#fff', 
-        borderColor: '#fff', 
+        label: "Ventas Diarias ($)",
+        data: dataFiltrada,
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
-      }
-    ]
+      },
+    ],
   };
 
   const options = {
@@ -121,19 +199,19 @@ function Home() {
     maintainAspectRatio: false,
     scales: {
       y: {
-        beginAtZero: true
-      }
+        beginAtZero: true,
+      },
     },
     plugins: {
       legend: {
-        position: 'top',
+        position: "top",
       },
       title: {
         display: true,
-        text: 'Ventas de la última semana',
-        color: '#fff'
-      }
-    }
+        text: "Ventas diaria",
+        color: "#fff",
+      },
+    },
   };
 
   return (
@@ -171,19 +249,27 @@ function Home() {
               <h3 className="text-sm font-semibold text-gray-300">
                 Ventas del Día
               </h3>
-              <p className="text-3xl font-bold text-white">$1,200.00</p>
+              <p className="text-3xl font-bold text-white">
+                ${totalDelDia ? totalDelDia.toLocaleString() : "0.00"}
+              </p>
             </div>
-            <div className="p-6 bg-gradient-to-br from-green-800 to-green-900 rounded-xl shadow-xl">
-              <h3 className="text-sm font-semibold text-gray-300">
-                Ventas totales
-              </h3>
-              <p className="text-3xl font-bold text-white">${ventasTotales.toLocaleString()}</p>
-            </div>
+            {userRole !== "cliente" && (
+              <div className="p-6 bg-gradient-to-br from-green-800 to-green-900 rounded-xl shadow-xl">
+                <h3 className="text-sm font-semibold text-gray-300">
+                  Ventas totales
+                </h3>
+                <p className="text-3xl font-bold text-white">
+                  ${ventasTotales ? ventasTotales.toLocaleString() : "0.00"}
+                </p>
+              </div>
+            )}
             <div className="p-6 bg-gradient-to-br from-orange-800 to-orange-900 rounded-xl shadow-xl">
               <h3 className="text-sm font-semibold text-gray-300">
                 Pedidos Pendientes
               </h3>
-              <p className="text-3xl font-bold text-white">5</p>
+              <p className="text-3xl font-bold text-white">
+                {pedidosPendientes}
+              </p>
             </div>
           </div>
 
@@ -196,20 +282,26 @@ function Home() {
             </div>
           </div>
 
-          <div className="mt-8 bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-xl shadow-xl">
-            <h3 className="text-xl font-bold mb-4 text-gray-200">Actividad Reciente</h3>
-            <ul className="space-y-4">
-              {actividades.length > 0 ? (
-                actividades.map((mensaje, index) => (
-                  <li key={index} className="text-gray-300">
-                    {mensaje}
+          {userRole !== "cliente" && (
+            <div className="mt-8 bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-xl shadow-xl">
+              <h3 className="text-xl font-bold mb-4 text-gray-200">
+                Actividad Reciente
+              </h3>
+              <ul className="space-y-4">
+                {actividades.length > 0 ? (
+                  actividades.map((mensaje, index) => (
+                    <li key={index} className="text-gray-300">
+                      {mensaje}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-gray-500">
+                    No hay actividades recientes.
                   </li>
-                ))
-              ) : (
-                <li className="text-gray-500">No hay actividades recientes.</li>
-              )}
-            </ul>
-          </div>
+                )}
+              </ul>
+            </div>
+          )}
         </main>
       </div>
     </div>
