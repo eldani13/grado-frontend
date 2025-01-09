@@ -18,6 +18,17 @@ function Categorias() {
   const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [categoriaId, setCategoriaId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [categoriaIdToDelete, setCategoriaIdToDelete] = useState(null);
+
+  const filteredCategorias = categorias.filter((categoria) =>
+    categoria.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -91,10 +102,15 @@ function Categorias() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (categoriaId) => {
+  const handleDelete = (categoriaId) => {
+    setCategoriaIdToDelete(categoriaId);
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
     try {
       const response = await fetch(
-        `${API_URL}/api/inventario/categorias/${categoriaId}/`,
+        `${API_URL}/api/inventario/categorias/${categoriaIdToDelete}/`,
         {
           method: "DELETE",
         }
@@ -105,12 +121,19 @@ function Categorias() {
       }
 
       setCategorias(
-        categorias.filter((categoria) => categoria.id !== categoriaId)
+        categorias.filter((categoria) => categoria.id !== categoriaIdToDelete)
       );
+      setIsConfirmDeleteOpen(false);
     } catch (error) {
       console.error("Error al eliminar la categoría:", error);
       setError("Hubo un error al eliminar la categoría. Inténtalo de nuevo.");
+      setIsConfirmDeleteOpen(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setIsConfirmDeleteOpen(false);
+    setCategoriaIdToDelete(null);
   };
 
   return (
@@ -128,6 +151,8 @@ function Categorias() {
                 <input
                   type="text"
                   placeholder="Buscar categorías..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
                   className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
@@ -141,7 +166,7 @@ function Categorias() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {categorias.map((categoria) => (
+            {filteredCategorias.map((categoria) => (
               <div
                 key={categoria.id}
                 className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-lg shadow-lg p-6 flex flex-col"
@@ -154,11 +179,9 @@ function Categorias() {
                     </h2>
                   </div>
                 </div>
-
                 <div className="mb-4">
                   <p className="text-gray-300">{categoria.descripcion}</p>
                 </div>
-
                 <div className="flex justify-between">
                   <button
                     onClick={() => handleEdit(categoria)}
@@ -193,12 +216,6 @@ function Categorias() {
             <h2 className="text-3xl font-bold text-center text-white mb-4">
               {editMode ? "Editar Categoría" : "Agregar Nueva Categoría"}
             </h2>
-
-            {error && (
-              <div className="bg-red-500 text-white p-2 rounded-md mb-4">
-                {error}
-              </div>
-            )}
 
             {error && (
               <div className="bg-red-500 text-white p-2 rounded-md mb-4">
@@ -257,6 +274,39 @@ function Categorias() {
                 </button>
               </div>
             </form>
+          </motion.div>
+        </div>
+      )}
+
+      {isConfirmDeleteOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
+          <motion.div
+            className="bg-gray-900 rounded-lg p-8 w-full max-w-md shadow-xl text-center"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h2 className="text-xl font-bold text-white">
+              Confirmar eliminación
+            </h2>
+            <p className="text-gray-300 mt-4">
+              ¿Estás seguro de que deseas eliminar la categoria?
+            </p>
+            <div className="flex justify-center gap-4 mt-6">
+              <button
+                onClick={cancelDelete}
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+              >
+                Eliminar
+              </button>
+            </div>
           </motion.div>
         </div>
       )}

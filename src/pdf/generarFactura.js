@@ -36,7 +36,7 @@
             },
             [
               {
-                text: 'Receipt',
+                text: 'Factura de Venta',
                 color: '#333333',
                 width: '*',
                 fontSize: 28,
@@ -49,7 +49,7 @@
                   {
                     columns: [
                       {
-                        text: 'Receipt No.',
+                        text: 'Factura No.',
                         color: '#aaaaab',
                         bold: true,
                         width: '*',
@@ -57,7 +57,7 @@
                         alignment: 'right',
                       },
                       {
-                        text: '00001',
+                        text: `${factura.numero_factura || "N/A"}`,
                         bold: true,
                         color: '#333333',
                         fontSize: 12,
@@ -69,7 +69,7 @@
                   {
                     columns: [
                       {
-                        text: 'Date Issued',
+                        text: 'Fecha de emision',
                         color: '#aaaaab',
                         bold: true,
                         width: '*',
@@ -77,7 +77,7 @@
                         alignment: 'right',
                       },
                       {
-                        text: 'June 01, 2016',
+                        text: `${factura.fecha_salida || "N/A"}`,
                         bold: true,
                         color: '#333333',
                         fontSize: 12,
@@ -89,7 +89,7 @@
                   {
                     columns: [
                       {
-                        text: 'Status',
+                        text: 'Estado',
                         color: '#aaaaab',
                         bold: true,
                         fontSize: 12,
@@ -114,7 +114,7 @@
         {
           columns: [
             {
-              text: 'From',
+              text: 'De',
               color: '#aaaaab',
               bold: true,
               fontSize: 14,
@@ -134,7 +134,7 @@
         {
           columns: [
             {
-              text: 'Your Name \n Your Company Inc.',
+              text: 'CASA PRODUCTORA\n CASA PRODUCTORA S.A.S.',
               bold: true,
               color: '#333333',
               alignment: 'left',
@@ -179,7 +179,7 @@
         {
           width: '100%',
           alignment: 'center',
-          text: 'Invoice No. 123',
+          text: 'Detalles',
           bold: true,
           margin: [0, 10, 0, 10],
           fontSize: 15,
@@ -225,8 +225,8 @@
             },
           },
           table: {
-            headerRows: 2,
-            widths: ['*', 80,],
+            headerRows: 1,
+            widths: ['*', "auto", "auto", "auto","auto","auto","auto"],
             body: [
               [
                 {
@@ -237,7 +237,45 @@
                   textTransform: 'uppercase',
                 },
                 {
-                  text: 'ITEM TOTAL',
+                  text: 'REFERENCIA',
+                  border: [false, true, false, true],
+                  alignment: 'center',
+                  fillColor: '#eaf2f5',
+                  margin: [0, 5, 0, 5],
+                  textTransform: 'uppercase',
+                },
+                {
+                  text: 'MARCA',
+                  fillColor: '#eaf2f5',
+                  border: [false, true, false, true],
+                  margin: [0, 5, 0, 5],
+                  textTransform: 'uppercase',
+                },
+                {
+                  text: 'SERIAL',
+                  fillColor: '#eaf2f5',
+                  border: [false, true, false, true],
+                  margin: [0, 5, 0, 5],
+                  textTransform: 'uppercase',
+                },
+                {
+                  text: 'CANTIDAD',
+                  border: [false, true, false, true],
+                  alignment: 'center',
+                  fillColor: '#eaf2f5',
+                  margin: [0, 5, 0, 5],
+                  textTransform: 'uppercase',
+                },
+                {
+                  text: 'P.UNITARIO',
+                  border: [false, true, false, true],
+                  alignment: 'center',
+                  fillColor: '#eaf2f5',
+                  margin: [0, 5, 0, 5],
+                  textTransform: 'uppercase',
+                },
+                {
+                  text: 'P.TOTAL',
                   border: [false, true, false, true],
                   alignment: 'center',
                   fillColor: '#eaf2f5',
@@ -247,36 +285,56 @@
               ],
               [
                 {
-                  text: 'Item 1',
+                  text: `${factura.equipo || "N/A"}`,
                   border: [false, false, false, true],
                   margin: [0, 5, 0, 5],
                   alignment: 'left',
                 },
                 {
                   border: [false, false, false, true],
-                  text: '$999.99',
+                  text: `${factura.referencia || "N/A"}`,
                   fillColor: '#f5f5f5',
                   alignment: 'right',
                   margin: [0, 5, 0, 5],
                 },
-              ],
-              [
                 {
-                  text: 'Item 2',
+                  text: `${factura.marca || "N/A"}`,
                   border: [false, false, false, true],
                   margin: [0, 5, 0, 5],
                   alignment: 'left',
                 },
                 {
-                  text: '$999.99',
                   border: [false, false, false, true],
+                  text: `${factura.serial || "N/A"}`,
                   fillColor: '#f5f5f5',
                   alignment: 'right',
                   margin: [0, 5, 0, 5],
                 },
+                {
+                  border: [false, false, false, true],
+                  text: `${factura.cantidad || "N/A"}`,
+                  fillColor: '#f5f5f5',
+                  alignment: 'right',
+                  margin: [0, 5, 0, 5],
+                },
+                {
+                  border: [false, false, false, true],
+                  text: `$${precioUnidad}`,
+                  fillColor: '#f5f5f5',
+                  alignment: 'right',
+                  margin: [0, 5, 0, 5],
+                },
+                {
+                  text: `$${total}`,
+                  border: [false, false, false, true],
+                  margin: [0, 5, 0, 5],
+                  alignment: 'left',
+                },
               ],
+
             ],
           },
+          
         },
         '\n',
         '\n\n',
@@ -325,14 +383,14 @@
             body: [
               [
                 {
-                  text: 'Payment Subtotal',
+                  text: 'Subtotal de pago',
                   border: [false, true, false, true],
                   alignment: 'right',
                   margin: [0, 5, 0, 5],
                 },
                 {
                   border: [false, true, false, true],
-                  text: '$999.99',
+                  text: `$${total}`,
                   alignment: 'right',
                   fillColor: '#f5f5f5',
                   margin: [0, 5, 0, 5],
@@ -340,13 +398,13 @@
               ],
               [
                 {
-                  text: 'Payment Processing Fee',
+                  text: 'Tarifa del pago',
                   border: [false, false, false, true],
                   alignment: 'right',
                   margin: [0, 5, 0, 5],
                 },
                 {
-                  text: '$999.99',
+                  text: '$0',
                   border: [false, false, false, true],
                   fillColor: '#f5f5f5',
                   alignment: 'right',
@@ -355,7 +413,7 @@
               ],
               [
                 {
-                  text: 'Total Amount',
+                  text: 'Monto Total',
                   bold: true,
                   fontSize: 20,
                   alignment: 'right',
@@ -363,7 +421,7 @@
                   margin: [0, 5, 0, 5],
                 },
                 {
-                  text: 'USD $999.99',
+                  text: `$${total}`,
                   bold: true,
                   fontSize: 20,
                   alignment: 'right',
@@ -377,13 +435,14 @@
         },
         '\n\n',
         {
-          text: 'NOTES',
+          text: 'NOTA',
           style: 'notesTitle',
         },
         {
-          text: 'Some notes goes here \n Notes second line',
+          text: "Gracias por su compra.\nSi tiene alguna pregunta sobre esta factura, no dude en contactarnos al correo example@example.com o al teléfono +57 123 4567 890.\nHorario de atención: Lunes a Viernes, 9:00 AM - 6:00 PM.\nCASA PRODUCTORA S.A.S - Todos los derechos reservados.",
           style: 'notesText',
         },
+        
       ],
       styles: {
         notesTitle: {

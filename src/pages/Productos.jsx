@@ -18,6 +18,20 @@ function Productos() {
   const [categorias, setCategorias] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [productoEditado, setProductoEditado] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
+  const [confirmarEliminarModalOpen, setConfirmarEliminarModalOpen] =
+    useState(false);
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
+
+  const handleBusquedaChange = (e) => {
+    setBusqueda(e.target.value);
+  };
+  const productosFiltrados = productos.filter(
+    (producto) =>
+      producto.equipo.toLowerCase().includes(busqueda.toLowerCase()) ||
+      producto.referencia.toLowerCase().includes(busqueda.toLowerCase()) ||
+      producto.marca.toLowerCase().includes(busqueda.toLowerCase())
+  );
   const [nuevoProducto, setNuevoProducto] = useState({
     equipo: "",
     referencia: "",
@@ -32,6 +46,16 @@ function Productos() {
     estado: "",
     esta_en_mantenimiento: "",
   });
+
+  const abrirConfirmarEliminarModal = (producto) => {
+    setProductoAEliminar(producto);
+    setConfirmarEliminarModalOpen(true);
+  };
+
+  const cerrarConfirmarEliminarModal = () => {
+    setProductoAEliminar(null);
+    setConfirmarEliminarModalOpen(false);
+  };
 
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -205,9 +229,12 @@ function Productos() {
                 <input
                   type="text"
                   placeholder="Buscar productos..."
+                  value={busqueda}
+                  onChange={handleBusquedaChange}
                   className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
+
               <button
                 className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                 onClick={abrirModal}
@@ -218,46 +245,116 @@ function Productos() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {productos.map((producto) => (
-              <div
-                key={producto.id}
-                className="bg-gray-800 rounded-lg shadow-lg p-6 relative"
-              >
-                <div className="flex flex-col gap-1">
-                  <h2 className="text-xl font-bold">{producto.equipo}</h2>
-                  <p>
-                    <strong>Referencia:</strong> {producto.referencia}
-                  </p>
-                  <p>
-                    <strong>Marca:</strong> {producto.marca}
-                  </p>
-                  <div className="flex flex-row gap-3">
-                    <button
-                      onClick={() => abrirDetalleModal(producto)}
-                      className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700"
-                    >
-                      <EyeIcon className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => abrirEditarModal(producto)}
-                      className="bg-yellow-600 text-white px-3 py-1 rounded-md hover:bg-yellow-700"
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(producto.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="mt-8">
+            <table className="min-w-full table-auto border-collapse border border-gray-700 text-gray-300">
+              <thead>
+                <tr className="bg-gray-800">
+                  <th className="px-6 py-3 border border-gray-700 text-left">
+                    Equipo
+                  </th>
+                  <th className="px-6 py-3 border border-gray-700 text-left">
+                    Referencia
+                  </th>
+                  <th className="px-6 py-3 border border-gray-700 text-left">
+                    Marca
+                  </th>
+                  <th className="px-6 py-3 border border-gray-700 text-center">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {productosFiltrados.map((producto) => (
+                  <tr
+                    key={producto.id}
+                    className="bg-gray-800 hover:bg-gray-700 transition"
+                  >
+                    <td className="px-6 py-3 border border-gray-700">
+                      {producto.equipo}
+                    </td>
+                    <td className="px-6 py-3 border border-gray-700">
+                      {producto.referencia}
+                    </td>
+                    <td className="px-6 py-3 border border-gray-700">
+                      {producto.marca}
+                    </td>
+                    <td className="px-6 py-3 border border-gray-700 text-center">
+                      <div className="flex justify-center gap-3">
+                        <button
+                          onClick={() => abrirDetalleModal(producto)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => abrirEditarModal(producto)}
+                          className="bg-yellow-600 text-white px-3 py-1 rounded-md hover:bg-yellow-700"
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => abrirConfirmarEliminarModal(producto)}
+                          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </main>
       </div>
+
+      {confirmarEliminarModalOpen && (
+        <AnimatePresence>
+          <motion.div
+            className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="bg-gray-800 p-6 rounded-lg w-[400px] text-center"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              transition={{ duration: 0.3 }}
+            >
+              <h2 className="text-xl font-bold text-white">
+                Confirmar eliminación
+              </h2>
+              <p className="text-gray-300 mt-4">
+                ¿Estás seguro de que deseas eliminar el producto{" "}
+                <span className="font-semibold text-red-500">
+                  {productoAEliminar?.equipo}
+                </span>
+                ?
+              </p>
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  onClick={cerrarConfirmarEliminarModal}
+                  className="bg-gray-600 px-4 py-2 rounded-md text-white hover:bg-gray-700"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => {
+                    handleDelete(productoAEliminar.id);
+                    cerrarConfirmarEliminarModal();
+                  }}
+                  className="bg-red-600 px-4 py-2 rounded-md text-white hover:bg-red-700"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
+      )}
 
       {modalOpen && (
         <AnimatePresence>
