@@ -3,6 +3,9 @@ import NavBar from "../components/NavBar";
 import Nav from "../components/Nav";
 import { ChartBarIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import generarGeneral from "../pdf/generarGeneral";
+import generarStock from "../pdf/generarStock";
+import generarActividades from "../pdf/generarActividades";
+import generarReporteFactura from "../pdf/generarReporteFactura";
 
 function Reportes() {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -40,7 +43,7 @@ function Reportes() {
       }
 
       const data = await response.json();
-      setReportData(data.datos); 
+      setReportData(data.datos);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -53,8 +56,25 @@ function Reportes() {
       alert("Primero genera el reporte para exportar el PDF.");
       return;
     }
-    generarGeneral(reportData).download("reporte_inventario.pdf");
+  
+    switch (reportType) {
+      case "general":
+        generarGeneral(reportData).download("reporte_general.pdf");
+        break;
+      case "stock":
+        generarStock(reportData).download("reporte_stock.pdf");
+        break;
+      case "actividades":
+        generarActividades(reportData).download("reporte_actividades.pdf");
+        break;
+      case "factura":
+        generarReporteFactura(reportData).download("reporte_facturas.pdf");
+        break;
+      default:
+        alert("Tipo de reporte no soportado.");
+    }
   };
+  
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
@@ -134,7 +154,7 @@ function Reportes() {
             <h2 className="text-2xl font-semibold text-gray-300 mb-4">
               Vista Previa
             </h2>
-            <div className="bg-gray-900 p-4 rounded-md shadow-lg h-64 overflow-y-auto text-gray-300">
+            <div className="bg-gray-900 p-4 rounded-md shadow-lg h-96 overflow-y-auto text-gray-300">
               {loading ? (
                 <p>Cargando datos...</p>
               ) : error ? (
@@ -143,7 +163,14 @@ function Reportes() {
                 <iframe
                   ref={(iframe) => {
                     if (iframe && reportData) {
-                      generarGeneral(reportData).getBlob((blob) => {
+                      const generateFunction = {
+                        general: generarGeneral,
+                        // stock: generarStock,
+                        // actividades: generarActividades,
+                        factura: generarReporteFactura,
+                      }[reportType];
+
+                      generateFunction(reportData).getBlob((blob) => {
                         const url = URL.createObjectURL(blob);
                         iframe.src = url;
 

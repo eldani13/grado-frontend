@@ -90,7 +90,7 @@ function Home() {
         switch (actividad.tipo) {
           case "venta":
             return `Se registró una nueva factura $${
-              actividad.factura_numero || "0"
+              actividad.valor_total || "0"
             }.`;
           case "actualizacion":
             return `Se actualizó el producto: ${

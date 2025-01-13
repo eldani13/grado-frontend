@@ -9,6 +9,11 @@ import {
   EyeIcon,
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
+import { Paper } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { Visibility, Edit, Delete } from "@mui/icons-material";
+import { Button } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 function Productos() {
   const [productos, setProductos] = useState([]);
@@ -47,6 +52,11 @@ function Productos() {
     esta_en_mantenimiento: "",
   });
 
+  const [estadisticas, setEstadisticas] = useState({
+    totalProductos: 0,
+    totalStock: 0,
+  });
+
   const abrirConfirmarEliminarModal = (producto) => {
     setProductoAEliminar(producto);
     setConfirmarEliminarModalOpen(true);
@@ -57,6 +67,19 @@ function Productos() {
     setConfirmarEliminarModalOpen(false);
   };
 
+  const calcularEstadisticas = () => {
+    const totalProductos = productos.length; 
+    const totalStock = productos.reduce(
+      (acc, producto) => acc + producto.cantidad,
+      0
+    ); 
+
+    setEstadisticas({
+      totalProductos,
+      totalStock,
+    });
+  };
+
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -65,6 +88,7 @@ function Productos() {
         const response = await fetch(`${API_URL}/api/inventario/productos/`);
         const data = await response.json();
         setProductos(data);
+        calcularEstadisticas();
       } catch (error) {
         console.error("Error al obtener los productos:", error);
       }
@@ -215,95 +239,115 @@ function Productos() {
     setProductoSeleccionado(null);
   };
 
+  const columns = [
+    { field: "id", headerName: "ID", width: 180 },
+    { field: "equipo", headerName: "Equipo", width: 180 },
+    { field: "referencia", headerName: "Referencia", width: 180 },
+    { field: "marca", headerName: "Marca", width: 180 },
+    { field: "valor", headerName: "Valor", width: 180 },
+
+    {
+      field: "acciones",
+      headerName: "Acciones",
+      width: 190,
+      renderCell: (params) => (
+        <div className="flex justify-center gap-3">
+          <Button
+            onClick={() => abrirDetalleModal(params.row)}
+            // variant="contained"
+            color="info"
+          >
+            <Visibility />
+          </Button>
+          <Button
+            onClick={() => abrirEditarModal(params.row)}
+            // variant="contained"
+            color="warning"
+          >
+            <Edit />
+          </Button>
+          <Button
+            onClick={() => abrirConfirmarEliminarModal(params.row)}
+            // variant="contained"
+            color="error"
+          >
+            <Delete />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const paginationModel = {
+    page: 0,
+    pageSize: 5,
+  };
+
+  const theme = createTheme({
+    palette: {
+      mode: "dark",
+    },
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
       <Nav />
       <div className="flex flex-1 pt-20">
         <NavBar />
         <main className="flex-1 p-8 overflow-auto ml-64">
-          <div className="flex items-center justify-between pb-8 border-b border-gray-700">
-            <h1 className="text-4xl font-extrabold text-white">Productos</h1>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute h-6 w-6 text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  value={busqueda}
-                  onChange={handleBusquedaChange}
-                  className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
+          <div className="flex-1 pr-8">
+            <div className="flex items-center justify-between pb-8 border-b border-gray-700">
+              <h1 className="text-4xl font-extrabold text-white">Productos</h1>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <MagnifyingGlassIcon className="absolute h-6 w-6 text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Buscar productos..."
+                    value={busqueda}
+                    onChange={handleBusquedaChange}
+                    className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+
+                <button
+                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                  onClick={abrirModal}
+                >
+                  <PlusIcon className="h-6 w-6 mr-2" />
+                  Agregar Producto
+                </button>
               </div>
-
-              <button
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                onClick={abrirModal}
-              >
-                <PlusIcon className="h-6 w-6 mr-2" />
-                Agregar Producto
-              </button>
             </div>
-          </div>
 
-          <div className="mt-8">
-            <table className="min-w-full table-auto border-collapse border border-gray-700 text-gray-300">
-              <thead>
-                <tr className="bg-gray-800">
-                  <th className="px-6 py-3 border border-gray-700 text-left">
-                    Equipo
-                  </th>
-                  <th className="px-6 py-3 border border-gray-700 text-left">
-                    Referencia
-                  </th>
-                  <th className="px-6 py-3 border border-gray-700 text-left">
-                    Marca
-                  </th>
-                  <th className="px-6 py-3 border border-gray-700 text-center">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {productosFiltrados.map((producto) => (
-                  <tr
-                    key={producto.id}
-                    className="bg-gray-800 hover:bg-gray-700 transition"
-                  >
-                    <td className="px-6 py-3 border border-gray-700">
-                      {producto.equipo}
-                    </td>
-                    <td className="px-6 py-3 border border-gray-700">
-                      {producto.referencia}
-                    </td>
-                    <td className="px-6 py-3 border border-gray-700">
-                      {producto.marca}
-                    </td>
-                    <td className="px-6 py-3 border border-gray-700 text-center">
-                      <div className="flex justify-center gap-3">
-                        <button
-                          onClick={() => abrirDetalleModal(producto)}
-                          className="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700"
-                        >
-                          <EyeIcon className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => abrirEditarModal(producto)}
-                          className="bg-yellow-600 text-white px-3 py-1 rounded-md hover:bg-yellow-700"
-                        >
-                          <PencilIcon className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => abrirConfirmarEliminarModal(producto)}
-                          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ThemeProvider theme={theme}>
+              <div className="mt-8 flex space-x-8">
+                <div className="flex-1">
+                  <Paper sx={{ height: 400, width: "100%" }}>
+                    <DataGrid
+                      rows={productosFiltrados}
+                      columns={columns}
+                      pageSize={5}
+                      checkboxSelection
+                      sx={{ border: 0 }}
+                    />
+                  </Paper>
+                </div>
+
+                <div className="w-80 bg-gray-800 p-4 rounded-lg shadow-lg space-y-4">
+                  <h2 className="text-xl font-semibold">Estadísticas</h2>
+                  <div className="text-gray-400">
+                    <p>
+                      <strong>Total de productos:</strong>{" "}
+                      {estadisticas.totalProductos}
+                    </p>
+                    <p>
+                      <strong>Total de stock:</strong> 2
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </ThemeProvider>
           </div>
         </main>
       </div>

@@ -114,7 +114,7 @@
         {
           columns: [
             {
-              text: 'De',
+              text: 'Compañia',
               color: '#aaaaab',
               bold: true,
               fontSize: 14,
@@ -122,7 +122,7 @@
               margin: [0, 20, 0, 5],
             },
             {
-              text: 'To',
+              text: 'Cliente',
               color: '#aaaaab',
               bold: true,
               fontSize: 14,
@@ -134,43 +134,62 @@
         {
           columns: [
             {
-              text: 'CASA PRODUCTORA\n CASA PRODUCTORA S.A.S.',
+              text: 'CASA PRODUCTORA',
               bold: true,
               color: '#333333',
               alignment: 'left',
             },
             {
-              text: 'Client Name \n Client Company',
+              text: `${factura.nombre_cliente || "N/A"}`,
               bold: true,
               color: '#333333',
               alignment: 'left',
+            },
+          ],
+          
+        },
+        {
+          columns: [
+
+            {
+              text: 'CASA PRODUCTORA S.A.S.',
+              bold: true,
+              color: '#333333',
+              alignment: 'left',
+            },
+            {
+              text: `${factura.compania_cliente || "N/A"}`,
+              bold: true,
+              color: '#333333',
+              alignment: 'left',
+            },
+          ],
+          
+        },
+        {
+          columns: [
+            {
+              text: 'Direccion',
+              color: '#aaaaab',
+              bold: true,
+              margin: [0, 7, 0, 3],
+            },
+            {
+              text: 'Direccion',
+              color: '#aaaaab',
+              bold: true,
+              margin: [0, 7, 0, 3],
             },
           ],
         },
         {
           columns: [
             {
-              text: 'Address',
-              color: '#aaaaab',
-              bold: true,
-              margin: [0, 7, 0, 3],
-            },
-            {
-              text: 'Address',
-              color: '#aaaaab',
-              bold: true,
-              margin: [0, 7, 0, 3],
-            },
-          ],
-        },
-        {
-          columns: [
-            {
-              text: '9999 Street name 1A \n New-York City NY 00000 \n   USA',
+              text: 'Cl. 29a #21a-80 \nManga, Cartagena de Indias',
               style: 'invoiceBillingAddress',
             },
             {
-              text: '1111 Other street 25 \n New-York City NY 00000 \n   USA',
+              text: `${factura.direccion || "N/A"}\n ${factura.barrio || "N/A"}`,
               style: 'invoiceBillingAddress',
             },
           ],

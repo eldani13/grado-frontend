@@ -6,7 +6,9 @@ import {
   ChartBarIcon,
   Cog6ToothIcon,
   BanknotesIcon,
-  ShoppingCartIcon
+  ShoppingCartIcon,
+  CogIcon,
+  TruckIcon 
 } from "@heroicons/react/24/outline";
 
 export default function NavBar() {
@@ -27,6 +29,8 @@ export default function NavBar() {
       { name: "Categorías", icon: <FolderIcon className="h-6 w-6" />, path: "/categorias" },
       { name: "Productos", icon: <ClipboardDocumentListIcon className="h-6 w-6" />, path: "/productos" },
       { name: "Pedidos", icon: <ShoppingCartIcon className="h-6 w-6" />, path: "/pedidos" },
+      { name: "Proceso", icon: <CogIcon className="h-6 w-6" />, path: "/proceso" },
+      { name: "Despacho", icon: <TruckIcon  className="h-6 w-6" />, path: "/despacho" },
       { name: "Factura", icon: <BanknotesIcon className="h-6 w-6" />, path: "/factura" },
       { name: "Reportes", icon: <ChartBarIcon className="h-6 w-6" />, path: "/reportes" },
       { name: "Configuración", icon: <Cog6ToothIcon className="h-6 w-6" />, path: "/configuracion" },

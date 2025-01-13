@@ -19,7 +19,10 @@ function Factura() {
   const filteredFacturas = facturas.filter(
     (factura) =>
       factura.numero_factura.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      factura.equipo.toLowerCase().includes(searchTerm.toLowerCase())
+      factura.equipo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      factura.referencia.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      factura.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      factura.serial.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const [formData, setFormData] = useState({
@@ -37,6 +40,11 @@ function Factura() {
     poliza: "",
     valor: "",
     total: "",
+    nombre_cliente: "",
+    compania_cliente: "",
+    direccion: "",
+    barrio: "",
+    telefono: "",
   });
 
   const API_URL = import.meta.env.VITE_API_BASE_URL;
@@ -144,7 +152,13 @@ function Factura() {
       poliza: formData.poliza,
       precio_unidad: formData.valor,
       precio_total: formData.total,
+      nombre_cliente: formData.nombre_cliente,
+      compania_cliente: formData.compania_cliente,
+      direccion: formData.direccion,
+      barrio: formData.barrio,
+      telefono: formData.telefono,
     };
+    
 
     try {
       const response = await fetch(`${API_URL}/api/inventario/facturas/`, {
@@ -176,7 +190,13 @@ function Factura() {
         poliza: "",
         valor: "",
         total: "",
+        nombre_cliente: "",
+        compania_cliente: "",
+        direccion: "",
+        barrio: "",
+        telefono: "",
       });
+      
 
       setModalOpen(false);
     } catch (error) {
@@ -208,7 +228,13 @@ function Factura() {
                   className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                 >
                   <PlusIcon className="h-6 w-6 mr-2" />
-                  Agregar Factura
+                  Agregar Factura Manual
+                </button>
+                <button
+                  className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition"
+                >
+                  <PlusIcon className="h-6 w-6 mr-2" />
+                  Auto Factura
                 </button>
               </div>
             </div>
@@ -298,6 +324,81 @@ function Factura() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-400 mb-1">
+                    Nombre del Cliente
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.nombre_cliente}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        nombre_cliente: e.target.value,
+                      })
+                    }
+                    className="w-full bg-gray-800 text-gray-300 py-2 px-4 rounded-md"
+                    placeholder="Ingrese el nombre del cliente"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-400 mb-1">
+                    Compañía del Cliente
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.compania_cliente}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        compania_cliente: e.target.value,
+                      })
+                    }
+                    className="w-full bg-gray-800 text-gray-300 py-2 px-4 rounded-md"
+                    placeholder="Ingrese la compañía del cliente"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-400 mb-1">Dirección</label>
+                  <input
+                    type="text"
+                    value={formData.direccion}
+                    onChange={(e) =>
+                      setFormData({ ...formData, direccion: e.target.value })
+                    }
+                    className="w-full bg-gray-800 text-gray-300 py-2 px-4 rounded-md"
+                    placeholder="Ingrese la dirección"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-400 mb-1">Barrio</label>
+                  <input
+                    type="text"
+                    value={formData.barrio}
+                    onChange={(e) =>
+                      setFormData({ ...formData, barrio: e.target.value })
+                    }
+                    className="w-full bg-gray-800 text-gray-300 py-2 px-4 rounded-md"
+                    placeholder="Ingrese el barrio"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-400 mb-1">Teléfono</label>
+                  <input
+                    type="text"
+                    value={formData.telefono}
+                    onChange={(e) =>
+                      setFormData({ ...formData, telefono: e.target.value })
+                    }
+                    className="w-full bg-gray-800 text-gray-300 py-2 px-4 rounded-md"
+                    placeholder="Ingrese el teléfono"
+                  />
                 </div>
 
                 <div className="mb-4">

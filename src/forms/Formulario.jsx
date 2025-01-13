@@ -1,22 +1,78 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Formulario() {
   const [pedido, setPedido] = useState({
-    nombre: "",
+    nombre_cliente: "",
     telefono: "",
     correo: "",
     direccion: "",
+    barrio: "",
+    nombre_compania: "",
     tipo_reserva: "",
     descripcion_reserva: "",
     fecha_reserva: "",
     fecha_inicio: "",
     fecha_fin: "",
+    categoria: "", // Agregar campo de categoría
+    producto: "", // Agregar campo de producto
+    cantidad: "",
   });
 
+  const [categorias, setCategorias] = useState([]);
+  const [productos, setProductos] = useState([]);
   const [mensaje, setMensaje] = useState(null);
   const [error, setError] = useState(null);
+
+  // Cargar las categorías desde la API
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/inventario/categorias/`
+        );
+        const data = await response.json();
+        setCategorias(data); // Suponiendo que la respuesta es un array de categorías
+      } catch (err) {
+        setError("Error al cargar las categorías");
+      }
+    };
+
+    fetchCategorias();
+  }, []);
+
+
+
+  useEffect(() => {
+    const fetchProductos = async () => {
+      if (pedido.categoria) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/inventario/productos`);
+          const data = await response.json();
+  
+          if (Array.isArray(data)) {
+            // Filtrar productos según la categoría seleccionada
+            const productosFiltrados = data.filter(
+              (producto) => producto.categoria === parseInt(pedido.categoria, 10)
+            );
+  
+            console.log("Productos filtrados:", productosFiltrados);
+            setProductos(productosFiltrados);
+          } else {
+            setError("Error al cargar los productos");
+          }
+        } catch (err) {
+          setError("Error al cargar los productos");
+        }
+      }
+    };
+  
+    fetchProductos();
+  }, [pedido.categoria]);
+  
+  
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,7 +86,7 @@ export default function Formulario() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/pedidos/pedidos/`, {
+      const response = await fetch(`${API_BASE_URL}/api/inventario/pedido/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,16 +99,21 @@ export default function Formulario() {
         setMensaje("Reserva creada con éxito");
         setError(null);
         setPedido({
-          nombre: "",
+          nombre_cliente: "",
           telefono: "",
           correo: "",
           direccion: "",
+          barrio: "",
+          nombre_compania: "",
           tipo_reserva: "",
-          descripcion_reserva: "",
+          descripcion: "",
           fecha_reserva: "",
           fecha_inicio: "",
           fecha_fin: "",
-        }); 
+          categoria: "",
+          producto: "",
+          cantidad: "",
+        });
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Ocurrió un error al crear la reserva");
@@ -73,18 +134,22 @@ export default function Formulario() {
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-300">Nombre</label>
+              <label className="text-sm font-medium text-gray-300">
+                Nombre
+              </label>
               <input
                 type="text"
-                name="nombre"
-                value={pedido.nombre}
+                name="nombre_cliente"
+                value={pedido.nombre_cliente}
                 onChange={handleChange}
                 className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                 required
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-300">Teléfono</label>
+              <label className="text-sm font-medium text-gray-300">
+                Teléfono
+              </label>
               <input
                 type="tel"
                 name="telefono"
@@ -95,7 +160,9 @@ export default function Formulario() {
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-300">Correo</label>
+              <label className="text-sm font-medium text-gray-300">
+                Correo
+              </label>
               <input
                 type="email"
                 name="correo"
@@ -106,7 +173,9 @@ export default function Formulario() {
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-300">Dirección</label>
+              <label className="text-sm font-medium text-gray-300">
+                Dirección
+              </label>
               <input
                 type="text"
                 name="direccion"
@@ -117,6 +186,32 @@ export default function Formulario() {
               />
             </div>
             <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-300">
+                Barrio
+              </label>
+              <input
+                type="text"
+                name="barrio"
+                value={pedido.barrio}
+                onChange={handleChange}
+                className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                required
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-300">
+                Compañia
+              </label>
+              <input
+                type="text"
+                name="nombre_compania"
+                value={pedido.nombre_compania}
+                onChange={handleChange}
+                className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                required
+              />
+            </div>
+            {/* <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-300">Tipo de Reserva</label>
               <select
                 name="tipo_reserva"
@@ -130,21 +225,82 @@ export default function Formulario() {
                 <option value="sonido">Sonido</option>
                 <option value="audiovisual">Audiovisual</option>
               </select>
+            </div> */}
+            {/* Dropdown de categorías */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-300">
+                Categoría
+              </label>
+              <select
+                name="categoria"
+                value={pedido.categoria}
+                onChange={handleChange}
+                className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                required
+              >
+                <option value="">Seleccione una categoría</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria.id} value={categoria.id}>
+                    {categoria.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Dropdown de productos */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-300">
+                Producto
+              </label>
+              <select
+                name="producto"
+                value={pedido.producto}
+                onChange={handleChange}
+                disabled={!pedido.categoria || productos.length === 0}
+                className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                required
+              >
+                <option value="">Seleccione un producto</option>
+                {productos.map((producto) => (
+                  <option key={producto.id} value={producto.id}>
+                    {producto.equipo}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-300">
+              Cantidad
+            </label>
+            <input
+              type="number"
+              name="cantidad"
+              value={pedido.cantidad}
+              onChange={handleChange}
+              className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+              required
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-300">Descripción de la Reserva</label>
+              <label className="text-sm font-medium text-gray-300">
+                Descripción de la Reserva
+              </label>
               <textarea
                 name="descripcion_reserva"
-                value={pedido.descripcion_reserva}
+                value={pedido.descripcion}
                 onChange={handleChange}
                 className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                 required
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-300">Fecha de Reserva</label>
+              <label className="text-sm font-medium text-gray-300">
+                Fecha de Reserva
+              </label>
               <input
                 type="date"
                 name="fecha_reserva"
@@ -155,7 +311,9 @@ export default function Formulario() {
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-300">Fecha de Inicio</label>
+              <label className="text-sm font-medium text-gray-300">
+                Fecha de Inicio
+              </label>
               <input
                 type="date"
                 name="fecha_inicio"
@@ -166,7 +324,9 @@ export default function Formulario() {
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-300">Fecha de Fin</label>
+              <label className="text-sm font-medium text-gray-300">
+                Fecha de Fin
+              </label>
               <input
                 type="date"
                 name="fecha_fin"
@@ -177,6 +337,7 @@ export default function Formulario() {
               />
             </div>
           </div>
+
           <div className="flex justify-center">
             <button
               type="submit"
@@ -186,7 +347,9 @@ export default function Formulario() {
             </button>
           </div>
         </form>
-        {mensaje && <p className="text-green-400 text-center mt-4">{mensaje}</p>}
+        {mensaje && (
+          <p className="text-green-400 text-center mt-4">{mensaje}</p>
+        )}
         {error && <p className="text-red-400 text-center mt-4">{error}</p>}
       </div>
     </div>
