@@ -17,7 +17,6 @@ function App() {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-
   const [pedidosData, setPedidosData] = useState([]); 
 
   useEffect(() => {
@@ -37,7 +36,14 @@ function App() {
     fetchPedidos();
   }, []); 
 
-  const pedidosEnProceso = pedidosData.filter(pedido => pedido.estado === "en_proceso");
+  const pedidosEnProceso = pedidosData.filter(pedido => {
+    console.log(pedido.estado); 
+    return pedido.estado === "en_proceso";
+  });
+  
+  
+
+  const pedidosTerminados = pedidosData.filter(pedido => pedido.estado === "terminado");
 
   return (
     <Router> 
@@ -51,7 +57,7 @@ function App() {
         <Route path="/reportes" element={<Reportes />} /> 
         <Route path="/configuracion" element={<Configuracion />} /> 
         <Route path="/pedidos" element={<Pedidos pedidos={pedidosEnProceso} />} /> 
-        <Route path="/despacho" element={<Despacho />} /> 
+        <Route path="/despacho" element={<Despacho pedidos={pedidosTerminados} />} />
         <Route path="/proceso" element={<Proceso pedidos={pedidosEnProceso} />} /> 
       </Routes>
     </Router>

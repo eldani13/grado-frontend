@@ -290,7 +290,7 @@ export default function Formulario() {
                 Descripción de la Reserva
               </label>
               <textarea
-                name="descripcion_reserva"
+                name="descripcion"
                 value={pedido.descripcion}
                 onChange={handleChange}
                 className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"

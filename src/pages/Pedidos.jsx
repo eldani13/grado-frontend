@@ -66,9 +66,10 @@ function Pedidos() {
 
   const filteredPedidos = pedidos.filter(
     (pedido) =>
-      pedido.nombre_cliente.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      pedido.estado !== "en_proceso"
+      (pedido.estado === "disponible" || pedido.estado === "no_disponible") && 
+      pedido.nombre_cliente.toLowerCase().includes(searchTerm.toLowerCase()) 
   );
+  
 
   const columns = [
     { field: "id", headerName: "ID", width: 300 },

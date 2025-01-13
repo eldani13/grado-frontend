@@ -68,7 +68,7 @@ function Home() {
 
   const fetchPedidos = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/pedidos/pedidos/`);
+      const response = await fetch(`${API_BASE_URL}/api/inventario/pedido/`);
       if (!response.ok) throw new Error("Error al obtener los pedidos");
 
       const data = await response.json();

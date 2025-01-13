@@ -13,6 +13,9 @@ function Factura() {
   const [modalOpen, setModalOpen] = useState(false);
   const [productos, setProductos] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAutoFacturaModalOpen, setAutoFacturaModalOpen] = useState(false);
+  const [pedidos, setPedidos] = useState([]);
+  const [selectedPedido, setSelectedPedido] = useState(null);
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -77,6 +80,59 @@ function Factura() {
     fetchFacturas();
   }, []);
 
+  const fetchPedidos = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/inventario/pedido/`);
+      if (!response.ok) {
+        throw new Error("Error al obtener los pedidos");
+      }
+      const data = await response.json();
+      console.log("pedido:", data);
+
+      const pedidosEnProceso = data.filter(
+        (pedido) => pedido.estado === "en_proceso"
+      );
+
+      setPedidos(pedidosEnProceso);
+    } catch (error) {
+      console.error("Error al cargar los pedidos:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPedidos();
+  }, []);
+
+  const rellenarDatosFactura = (pedido) => {
+    console.log("Pedido recibido:", pedido);
+
+    const updatedFormData = {
+      numero_factura: "",
+      equipo: pedido.producto_nombre || "",
+      referencia: "",
+      marca: "",
+      serial: "",
+      cantidad: pedido.cantidad || 0,
+      descripcion: pedido.descripcion || "Sin descripción",
+      fecha_entrada: "",
+      fecha_salida: new Date().toISOString().split("T")[0],
+      estado: pedido.estado || "",
+      observaciones: "",
+      poliza: "",
+      valor: 0,
+      total: (pedido.valor || 0) * (pedido.cantidad || 0),
+      nombre_cliente: pedido.nombre_cliente || "",
+      compania_cliente: pedido.nombre_compania || "",
+      direccion: pedido.direccion || "",
+      barrio: pedido.barrio || "",
+      telefono: pedido.telefono || "",
+    };
+
+    console.log("Datos que se van a establecer en formData:", updatedFormData);
+
+    setFormData(updatedFormData);
+  };
+
   const handleProductoChange = (event) => {
     const selectedProducto = productos.find(
       (producto) => producto.equipo === event.target.value
@@ -107,6 +163,41 @@ function Factura() {
       total: (formData.valor * cantidad).toFixed(2),
     });
   };
+
+  const terminarPedido = async () => {
+    try {
+      const response = await fetch(
+        `${API_URL}/api/inventario/pedido/${selectedPedido.id}/terminar/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error al terminar el pedido: ${errorText}`);
+      }
+  
+      const updatedPedido = await response.json();
+      console.log("Pedido terminado", updatedPedido);
+  
+      setPedidos((prevPedidos) =>
+        prevPedidos.map((pedido) =>
+          pedido.id === selectedPedido.id
+            ? { ...pedido, estado: "terminado" }
+            : pedido
+        )
+      );
+  
+    } catch (error) {
+      console.error("Error al terminar el pedido:", error);
+      alert(`Error al terminar el pedido: ${error.message}`);
+    }
+  };
+  
 
   const handleAddFactura = async () => {
     const selectedProducto = productos.find(
@@ -139,42 +230,49 @@ function Factura() {
     const nuevaFactura = {
       numero_factura: formData.numero_factura || `FAC-${Date.now()}`,
       producto: selectedProducto.id,
-      equipo: formData.equipo,
-      referencia: formData.referencia,
-      marca: formData.marca,
-      serial: formData.serial,
+      equipo: formData.equipo || "N/A",
+      referencia: formData.referencia || "N/A",
+      marca: formData.marca || "N/A",
+      serial: formData.serial || "N/A",
       cantidad: formData.cantidad,
-      descripcion: formData.descripcion,
-      fecha_entrada: formData.fecha_entrada,
-      fecha_salida: formData.fecha_salida,
-      estado: formData.estado,
-      observaciones: formData.observaciones,
-      poliza: formData.poliza,
-      precio_unidad: formData.valor,
-      precio_total: formData.total,
-      nombre_cliente: formData.nombre_cliente,
-      compania_cliente: formData.compania_cliente,
-      direccion: formData.direccion,
-      barrio: formData.barrio,
-      telefono: formData.telefono,
+      descripcion: formData.descripcion || "N/A",
+      fecha_entrada: formData.fecha_entrada || "N/A",
+      fecha_salida: formData.fecha_salida || "N/A",
+      estado: formData.estado || "N/A",
+      observaciones: formData.observaciones || "N/A",
+      poliza: formData.poliza || "N/A",
+      precio_unidad: formData.valor || 0,
+      precio_total: formData.total || 0,
+      nombre_cliente: formData.nombre_cliente || "N/A",
+      compania_cliente: formData.compania_cliente || "N/A",
+      direccion: formData.direccion || "N/A",
+      barrio: formData.barrio || "N/A",
+      telefono: formData.telefono || "N/A",
     };
-    
+
+    console.log("Datos enviados al servidor:", nuevaFactura);
+
+    console.log("Datos enviados al servidor:", nuevaFactura);
 
     try {
+      // Intentar generar la factura
       const response = await fetch(`${API_URL}/api/inventario/facturas/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevaFactura),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Error al registrar la factura");
       }
-
+  
       const facturaGuardada = await response.json();
       setFacturas([...facturas, facturaGuardada]);
-
+  
+      // **Finalizar el pedido después de generar la factura**
+      await terminarPedido(); // Llamada a la función de finalizar pedido
+  
       setFormData({
         numero_factura: "",
         equipo: "",
@@ -196,15 +294,13 @@ function Factura() {
         barrio: "",
         telefono: "",
       });
-      
-
+  
       setModalOpen(false);
     } catch (error) {
       console.error("Error al registrar la factura:", error);
       alert(`Error al registrar la factura: ${error.message}`);
     }
   };
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
       <Nav />
@@ -231,6 +327,7 @@ function Factura() {
                   Agregar Factura Manual
                 </button>
                 <button
+                  onClick={() => setAutoFacturaModalOpen(true)}
                   className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition"
                 >
                   <PlusIcon className="h-6 w-6 mr-2" />
@@ -302,6 +399,62 @@ function Factura() {
               ))}
             </tbody>
           </table>
+
+          {isAutoFacturaModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center">
+              <div className="bg-gray-900 p-8 rounded-md shadow-lg max-w-lg w-full">
+                <h2 className="text-2xl font-bold mb-4">
+                  Seleccionar Pedido en Proceso
+                </h2>
+
+                <div className="mb-4">
+                  <label className="block text-gray-400 mb-1">
+                    Pedidos en Proceso
+                  </label>
+                  <select
+                    value={selectedPedido?.id || ""}
+                    onChange={(e) => {
+                      const pedido = pedidos.find(
+                        (p) => p.id === parseInt(e.target.value) // Asegura que coincida el tipo de dato
+                      );
+                      setSelectedPedido(pedido);
+                    }}
+                    className="w-full bg-gray-800 text-gray-300 py-2 px-4 rounded-md"
+                  >
+                    <option value="">Seleccione un pedido</option>
+                    {pedidos.map((pedido) => (
+                      <option key={pedido.id} value={pedido.id}>
+                        {`Pedido ${pedido.id} - ${pedido.nombre_cliente}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => setAutoFacturaModalOpen(false)}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (selectedPedido) {
+                        rellenarDatosFactura(selectedPedido); // Rellena los datos de la factura
+                        setAutoFacturaModalOpen(false);
+                        setModalOpen(true); // Abre el modal principal con datos llenos
+                      } else {
+                        alert("Por favor seleccione un pedido.");
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    Confirmar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {modalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center">
