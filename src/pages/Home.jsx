@@ -94,21 +94,21 @@ function Home() {
       const data = await response.json();
       const mensajes = data.map((actividad) => {
         switch (actividad.tipo) {
-          case "venta":
-            return `Se registró una nueva factura $${
+          case "factura":
+            return `Se registró una nueva factura de $${
               actividad.valor_total || "0"
             }.`;
-          case "actualizacion":
-            return `Se actualizó el producto: ${
+          case "reporte":
+            return ` ${
               actividad.descripcion || "desconocido"
             }.`;
-          case "factura":
-            return `Se emitió una factura: ${
-              actividad.factura || "desconocida"
+          case "producto":
+            return `Se creo un nuevo producto: ${
+              actividad.equipo || "desconocida"
             }.`;
-          case "otro":
-            return `Actividad registrada: ${
-              actividad.descripcion || "sin descripción"
+          case "categoria":
+            return `Se creo una nueva categoria: ${
+              actividad.nombre || "sin descripción"
             }.`;
           default:
             return "Actividad desconocida.";

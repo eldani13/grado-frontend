@@ -17,6 +17,7 @@ function Factura() {
   const [pedidos, setPedidos] = useState([]);
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isManualFactura, setIsManualFactura] = useState(false);
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -167,13 +168,25 @@ function Factura() {
 
   const terminarPedido = async () => {
     try {
+      if (isManualFactura) {
+        return; 
+      }
+
+      if (!selectedPedido) {
+        throw new Error("No se ha seleccionado un pedido.");
+      }
+
+      const pedidoId = selectedPedido.id;
+
       const response = await fetch(
-        `${API_URL}/api/inventario/pedido/${selectedPedido.id}/terminar/`,
+        `${API_URL}/api/inventario/pedido/${pedidoId}/terminar/`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+          }),
         }
       );
 
@@ -183,17 +196,16 @@ function Factura() {
       }
 
       const updatedPedido = await response.json();
-      // console.log("Pedido terminado", updatedPedido);
 
       setPedidos((prevPedidos) =>
         prevPedidos.map((pedido) =>
-          pedido.id === selectedPedido.id
+          pedido.id === updatedPedido.id
             ? { ...pedido, estado: "terminado" }
             : pedido
         )
       );
     } catch (error) {
-      console.error("Error al terminar el pedido:", error);
+      console.error(error);
       setErrorMessage(`Error al terminar el pedido: ${error.message}`);
     }
   };
@@ -330,14 +342,21 @@ function Factura() {
                   onChange={handleSearchChange}
                 />
                 <button
-                  onClick={() => setModalOpen(true)}
+                  onClick={() => {
+                    setModalOpen(true);
+                    setIsManualFactura(true); 
+                  }}
                   className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                 >
                   <PlusIcon className="h-6 w-6 mr-2" />
                   Agregar Factura Manual
                 </button>
+
                 <button
-                  onClick={() => setAutoFacturaModalOpen(true)}
+                  onClick={() => {
+                    setAutoFacturaModalOpen(true);
+                    setIsManualFactura(false); 
+                  }}
                   className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition"
                 >
                   <PlusIcon className="h-6 w-6 mr-2" />
