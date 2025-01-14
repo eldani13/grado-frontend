@@ -6,20 +6,15 @@ pdfMake.vfs = pdfFonts.vfs;
 export default function generarActividades(data) {
   const docDefinition = {
     content: [
-      { text: "Reporte de Factura", style: "header" },
+      { text: "Reporte de Actividades", style: "header" },
       {
         table: {
-          widths: ["50%", "50%"],
+          widths: ["100%"],
           body: [
-            [
-              { text: "Métricas", style: "tableHeader" },
-              { text: "Valor", style: "tableHeader" },
-            ],
-            ["Equipo", data.datos.producto__equipo || "N/A"],
-            ["Cantidad", data.datos.cantidad || "N/A"],
-            ["Fecha salida", data.datos.fecha_salida || "N/A"],
-            ["Total", data.datos.total || "N/A"],
-            ["No. Factura", data.datos.numero_factura || "N/A"],
+            [{ text: "Actividad", style: "tableHeader" }],
+            ...data.map((actividad) => [
+              actividad.descripcion || "Descripción no disponible",
+            ]), // Cambié esto para acceder correctamente a las actividades
           ],
         },
         layout: "lightHorizontalLines",
@@ -41,3 +36,4 @@ export default function generarActividades(data) {
 
   return pdfMake.createPdf(docDefinition);
 }
+

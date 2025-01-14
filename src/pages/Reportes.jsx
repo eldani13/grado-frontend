@@ -124,7 +124,7 @@ function Reportes() {
               >
                 <option value="general">Reporte General</option>
                 <option value="stock">Reporte de Stock</option>
-                <option value="actividades">Reporte de Actividades</option>
+                {/* <option value="actividades">Reporte de Actividades</option> */}
                 <option value="factura">Reporte de Facturas</option>
               </select>
             </div>
