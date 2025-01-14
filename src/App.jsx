@@ -37,7 +37,7 @@ function App() {
   }, []); 
 
   const pedidosEnProceso = pedidosData.filter(pedido => {
-    console.log(pedido.estado); 
+    // console.log(pedido.estado); 
     return pedido.estado === "en_proceso";
   });
   

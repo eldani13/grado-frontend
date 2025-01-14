@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo1.png";
 import { login } from "../validations/auth";
 
 function Login() {
@@ -24,7 +24,7 @@ function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-purple-700 via-blue-900 to-black">
       <div className="w-full max-w-lg p-10 bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl shadow-xl">
         <div className="flex flex-col items-center mb-8">
-          <img src={logo} alt="Logo" className="w-80 mb-6 animate-spin-slow" />
+          <img src={logo} alt="Logo" className="w-80 mb-6 animate-spin-slow rounded-xl" />
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Bienvenido</h1>
           <p className="text-gray-400 text-center mt-2">Conéctate a un mundo de posibilidades</p>
         </div>

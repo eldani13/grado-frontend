@@ -6,10 +6,10 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Paper, ThemeProvider, createTheme } from "@mui/material";
 
 function Proceso({ pedidos }) {
-  console.log("Datos de pedidos:", pedidos);
+  // console.log("Datos de pedidos:", pedidos);
 
   const pedidosEnProceso = pedidos ? pedidos.filter((pedido) => pedido.estado === "en_proceso") : [];
-  console.log("pedidos en proceso", pedidosEnProceso);
+  // console.log("pedidos en proceso", pedidosEnProceso);
 
   const columns = [
     { field: "id", headerName: "ID", width: 300 },

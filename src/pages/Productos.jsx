@@ -68,11 +68,11 @@ function Productos() {
   };
 
   const calcularEstadisticas = () => {
-    const totalProductos = productos.length; 
+    const totalProductos = productos.length;
     const totalStock = productos.reduce(
       (acc, producto) => acc + producto.cantidad,
       0
-    ); 
+    );
 
     setEstadisticas({
       totalProductos,
@@ -323,13 +323,15 @@ function Productos() {
             <ThemeProvider theme={theme}>
               <div className="mt-8 flex space-x-8">
                 <div className="flex-1">
-                  <Paper sx={{ height: 400, width: "100%" }}>
+                  <Paper
+                    className="p-4 bg-gray-800 rounded-lg"
+                    sx={{ height: 400, width: "100%" }}
+                  >
                     <DataGrid
                       rows={productosFiltrados}
                       columns={columns}
                       pageSize={5}
-                      checkboxSelection
-                      sx={{ border: 0 }}
+                      // checkboxSelection
                     />
                   </Paper>
                 </div>

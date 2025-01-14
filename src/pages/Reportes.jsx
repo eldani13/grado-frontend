@@ -7,6 +7,23 @@ import generarStock from "../pdf/generarStock";
 import generarActividades from "../pdf/generarActividades";
 import generarReporteFactura from "../pdf/generarReporteFactura";
 
+const ErrorModal = ({ message, onClose }) => (
+  <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full">
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">Error</h3>
+      <p className="text-gray-600">{message}</p>
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={onClose}
+          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-200"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 function Reportes() {
   const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -17,6 +34,7 @@ function Reportes() {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleGenerateReport = async () => {
     setLoading(true);
@@ -46,6 +64,7 @@ function Reportes() {
       setReportData(data.datos);
     } catch (err) {
       setError(err.message);
+      setModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -53,10 +72,11 @@ function Reportes() {
 
   const handleDownloadPDF = () => {
     if (!reportData) {
-      alert("Primero genera el reporte para exportar el PDF.");
+      setError("Primero genera el reporte para exportar el PDF.");
+      setModalOpen(true);
       return;
     }
-  
+
     switch (reportType) {
       case "general":
         generarGeneral(reportData).download("reporte_general.pdf");
@@ -71,10 +91,12 @@ function Reportes() {
         generarReporteFactura(reportData).download("reporte_facturas.pdf");
         break;
       default:
-        alert("Tipo de reporte no soportado.");
+        setError("Tipo de reporte no soportado.");
+        setModalOpen(true);
     }
   };
-  
+
+  const closeModal = () => setModalOpen(false);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
@@ -162,15 +184,18 @@ function Reportes() {
               ) : reportData ? (
                 <iframe
                   ref={(iframe) => {
-                    if (iframe && reportData) {
-                      const generateFunction = {
-                        general: generarGeneral,
-                        // stock: generarStock,
-                        // actividades: generarActividades,
-                        factura: generarReporteFactura,
-                      }[reportType];
+                    if (!iframe || !reportData) return;
 
+                    const generateFunction = {
+                      general: generarGeneral,
+                      stock: generarStock,
+                      actividades: generarActividades,
+                      factura: generarReporteFactura,
+                    }[reportType];
+
+                    if (generateFunction) {
                       generateFunction(reportData).getBlob((blob) => {
+                        if (!blob) return;
                         const url = URL.createObjectURL(blob);
                         iframe.src = url;
 
@@ -182,12 +207,14 @@ function Reportes() {
                   }}
                   className="w-full h-full"
                   title="Vista previa del PDF"
-                ></iframe>
+                />
               ) : (
                 <p>La vista previa del reporte aparecerá aquí.</p>
               )}
             </div>
           </div>
+
+          {modalOpen && <ErrorModal message={error} onClose={closeModal} />}
         </main>
       </div>
     </div>

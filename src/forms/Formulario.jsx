@@ -52,12 +52,11 @@ export default function Formulario() {
           const data = await response.json();
   
           if (Array.isArray(data)) {
-            // Filtrar productos según la categoría seleccionada
             const productosFiltrados = data.filter(
               (producto) => producto.categoria === parseInt(pedido.categoria, 10)
             );
   
-            console.log("Productos filtrados:", productosFiltrados);
+            // console.log("Productos filtrados:", productosFiltrados);
             setProductos(productosFiltrados);
           } else {
             setError("Error al cargar los productos");

@@ -21,18 +21,13 @@ function Configuracion() {
   const [cloudBackup, setCloudBackup] = useState(false);
   const [deviceSync, setDeviceSync] = useState(true);
   const [language, setLanguage] = useState("es");
+  const [saveModal, setSaveModal] = useState(false);
+
 
   const handleSaveSettings = () => {
-    console.log("Settings saved:", {
-      notificationSettings,
-      theme,
-      userRole,
-      cloudBackup,
-      deviceSync,
-      language,
-    });
-    alert("Configuración guardada exitosamente!");
+    setSaveModal(true);  
   };
+  
 
   const openAdvancedModal = () => {
     setAdvancedModal(true);
@@ -196,6 +191,24 @@ function Configuracion() {
           </div>
         </div>
       )}
+
+{saveModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-gray-900 p-8 rounded-lg shadow-lg max-w-md w-full">
+      <h2 className="text-2xl font-bold mb-4">¡Configuración Guardada!</h2>
+      <p className="text-gray-400 mb-6">Tus cambios se han guardado correctamente.</p>
+      <div className="flex justify-end gap-4">
+        <button
+          onClick={() => setSaveModal(false)}  
+          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

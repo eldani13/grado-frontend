@@ -66,10 +66,9 @@ function Pedidos() {
 
   const filteredPedidos = pedidos.filter(
     (pedido) =>
-      (pedido.estado === "disponible" || pedido.estado === "no_disponible") && 
-      pedido.nombre_cliente.toLowerCase().includes(searchTerm.toLowerCase()) 
+      (pedido.estado === "disponible" || pedido.estado === "no_disponible") &&
+      pedido.nombre_cliente.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
 
   const columns = [
     { field: "id", headerName: "ID", width: 300 },
@@ -150,7 +149,6 @@ function Pedidos() {
       }
 
       const updatedPedido = await response.json();
-      console.log("Pedido aprobado", updatedPedido);
 
       setPedidos((prevPedidos) =>
         prevPedidos.map((pedido) =>
@@ -318,9 +316,9 @@ function Pedidos() {
                     <Button
                       variant="contained"
                       color="warning"
-                      onClick={() =>
-                        console.log("Pedido rechazado", selectedPedido.id)
-                      }
+                      // onClick={() =>
+                      //   console.log("Pedido rechazado", selectedPedido.id)
+                      // }
                     >
                       Rechazar
                     </Button>

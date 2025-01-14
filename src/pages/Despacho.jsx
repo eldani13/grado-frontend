@@ -69,15 +69,12 @@ function Despacho() {
                   <MagnifyingGlassIcon className="absolute h-6 w-6 text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Buscar productos..."
+                    placeholder="Buscar..."
                     value={filtro}
                     onChange={(e) => setFiltro(e.target.value)}
                     className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
-                <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                  <PlusIcon className="h-6 w-6 mr-2" /> Agregar Producto
-                </button>
               </div>
             </div>
 

@@ -16,6 +16,7 @@ function Factura() {
   const [isAutoFacturaModalOpen, setAutoFacturaModalOpen] = useState(false);
   const [pedidos, setPedidos] = useState([]);
   const [selectedPedido, setSelectedPedido] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -87,7 +88,7 @@ function Factura() {
         throw new Error("Error al obtener los pedidos");
       }
       const data = await response.json();
-      console.log("pedido:", data);
+      // console.log("pedido:", data);
 
       const pedidosEnProceso = data.filter(
         (pedido) => pedido.estado === "en_proceso"
@@ -104,7 +105,7 @@ function Factura() {
   }, []);
 
   const rellenarDatosFactura = (pedido) => {
-    console.log("Pedido recibido:", pedido);
+    // console.log("Pedido recibido:", pedido);
 
     const updatedFormData = {
       numero_factura: "",
@@ -128,7 +129,7 @@ function Factura() {
       telefono: pedido.telefono || "",
     };
 
-    console.log("Datos que se van a establecer en formData:", updatedFormData);
+    // console.log("Datos que se van a establecer en formData:", updatedFormData);
 
     setFormData(updatedFormData);
   };
@@ -175,15 +176,15 @@ function Factura() {
           },
         }
       );
-  
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Error al terminar el pedido: ${errorText}`);
       }
-  
+
       const updatedPedido = await response.json();
-      console.log("Pedido terminado", updatedPedido);
-  
+      // console.log("Pedido terminado", updatedPedido);
+
       setPedidos((prevPedidos) =>
         prevPedidos.map((pedido) =>
           pedido.id === selectedPedido.id
@@ -191,13 +192,11 @@ function Factura() {
             : pedido
         )
       );
-  
     } catch (error) {
       console.error("Error al terminar el pedido:", error);
-      alert(`Error al terminar el pedido: ${error.message}`);
+      setErrorMessage(`Error al terminar el pedido: ${error.message}`);
     }
   };
-  
 
   const handleAddFactura = async () => {
     const selectedProducto = productos.find(
@@ -205,17 +204,17 @@ function Factura() {
     );
 
     if (!selectedProducto) {
-      alert("Debes seleccionar un producto válido.");
+      setErrorMessage("Debes seleccionar un producto válido.");
       return;
     }
 
     if (!formData.cantidad || formData.cantidad <= 0) {
-      alert("La cantidad debe ser mayor a 0.");
+      setErrorMessage("La cantidad debe ser mayor a 0.");
       return;
     }
 
     if (formData.cantidad > selectedProducto.cantidad) {
-      alert("No hay suficiente inventario disponible.");
+      setErrorMessage("No hay suficiente inventario disponible.");
       return;
     }
 
@@ -250,29 +249,23 @@ function Factura() {
       telefono: formData.telefono || "N/A",
     };
 
-    console.log("Datos enviados al servidor:", nuevaFactura);
-
-    console.log("Datos enviados al servidor:", nuevaFactura);
-
     try {
-      // Intentar generar la factura
       const response = await fetch(`${API_URL}/api/inventario/facturas/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevaFactura),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Error al registrar la factura");
       }
-  
+
       const facturaGuardada = await response.json();
       setFacturas([...facturas, facturaGuardada]);
-  
-      // **Finalizar el pedido después de generar la factura**
-      await terminarPedido(); // Llamada a la función de finalizar pedido
-  
+
+      await terminarPedido();
+
       setFormData({
         numero_factura: "",
         equipo: "",
@@ -294,13 +287,30 @@ function Factura() {
         barrio: "",
         telefono: "",
       });
-  
+
       setModalOpen(false);
     } catch (error) {
       console.error("Error al registrar la factura:", error);
-      alert(`Error al registrar la factura: ${error.message}`);
+      setErrorMessage(`Error al registrar la factura: ${error.message}`);
     }
   };
+
+  const ErrorModal = ({ message, onClose }) => (
+    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full">
+        <p className="text-lg font-semibold text-gray-800">{message}</p>
+        <div className="mt-6 flex justify-end">
+          <button
+            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-200"
+            onClick={onClose}
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
       <Nav />
@@ -415,7 +425,7 @@ function Factura() {
                     value={selectedPedido?.id || ""}
                     onChange={(e) => {
                       const pedido = pedidos.find(
-                        (p) => p.id === parseInt(e.target.value) // Asegura que coincida el tipo de dato
+                        (p) => p.id === parseInt(e.target.value)
                       );
                       setSelectedPedido(pedido);
                     }}
@@ -440,11 +450,11 @@ function Factura() {
                   <button
                     onClick={() => {
                       if (selectedPedido) {
-                        rellenarDatosFactura(selectedPedido); // Rellena los datos de la factura
+                        rellenarDatosFactura(selectedPedido);
                         setAutoFacturaModalOpen(false);
-                        setModalOpen(true); // Abre el modal principal con datos llenos
+                        setModalOpen(true);
                       } else {
-                        alert("Por favor seleccione un pedido.");
+                        setErrorMessage("Por favor seleccione un pedido.");
                       }
                     }}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -599,6 +609,15 @@ function Factura() {
               </div>
             </div>
           )}
+
+          <div>
+            {errorMessage && (
+              <ErrorModal
+                message={errorMessage}
+                onClose={() => setErrorMessage("")}
+              />
+            )}
+          </div>
         </main>
       </div>
     </div>

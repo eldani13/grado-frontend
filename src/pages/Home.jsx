@@ -72,7 +72,13 @@ function Home() {
       if (!response.ok) throw new Error("Error al obtener los pedidos");
 
       const data = await response.json();
-      const totalPedidos = data.length;
+
+      const pedidosFiltrados = data.filter(
+        (pedido) =>
+          pedido.estado === "disponible" || pedido.estado === "no_disponible"
+      );
+
+      const totalPedidos = pedidosFiltrados.length;
       setPedidosPendientes(totalPedidos);
     } catch (error) {
       console.error(error.message);
@@ -120,13 +126,17 @@ function Home() {
       if (!response.ok) throw new Error("Error al obtener el resumen");
 
       const data = await response.json();
-      const resumen = data.datos || {};
+      // console.log("Datos del resumen:", data); 
 
+      const resumen = data.datos || {};
       setVentasTotales(resumen.ventas_totales || 0);
       setTotalDelDia(resumen.total_del_dia || 0);
 
-      const diaActual = new Date().getDay();
-      const diasSemana = [
+      const ventasCompletas = resumen.ventas_diarias || Array(7).fill(0);
+      // console.log("Ventas completas:", ventasCompletas); 
+
+      setVentasDiarias(ventasCompletas);
+      setLabelsFiltrados([
         "Lunes",
         "Martes",
         "Miércoles",
@@ -134,13 +144,7 @@ function Home() {
         "Viernes",
         "Sábado",
         "Domingo",
-      ];
-
-      const ventasDistribuidas = diasSemana.map((_, index) =>
-        index < diaActual ? resumen.total_del_dia / (diaActual || 1) : 0
-      );
-
-      setVentasDiarias(ventasDistribuidas);
+      ]);
     } catch (error) {
       console.error(error.message);
     }
@@ -165,34 +169,41 @@ function Home() {
       "Domingo",
     ];
 
-    const diaActual = new Date().getDay();
+    const diaActual = new Date().getDay(); 
     const ultimoDiaGuardado = localStorage.getItem("ultimoDiaGuardado");
 
     if (ultimoDiaGuardado !== `${diaActual}`) {
       localStorage.setItem("ultimoDiaGuardado", `${diaActual}`);
-      setVentasDiarias(Array(7).fill(0));
+      setVentasDiarias(Array(7).fill(0)); 
       setLabelsFiltrados(diasSemana);
     } else {
-      const ventasCompletas = diasSemana.map(
-        (_, index) => ventasDiarias[index] || 0
-      );
+      const ventasCompletas = diasSemana.map((_, index) => {
+        if (index === diaActual) {
+          return totalDelDia || 0; 
+        }
+        return ventasDiarias[index] || 0; 
+      });
+
       setLabelsFiltrados(diasSemana);
-      setDataFiltrada(ventasCompletas);
+      setDataFiltrada(ventasCompletas); 
     }
-  }, [ventasDiarias]);
+  }, [ventasDiarias, totalDelDia]); 
 
   const data = {
     labels: labelsFiltrados,
     datasets: [
       {
         label: "Ventas Diarias ($)",
-        data: dataFiltrada,
+        data: dataFiltrada, 
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
       },
     ],
   };
+
+  // console.log("Ventas Diarias:", ventasDiarias); 
+  // console.log("Labels Filtrados:", labelsFiltrados); 
 
   const options = {
     responsive: true,
@@ -287,19 +298,21 @@ function Home() {
               <h3 className="text-xl font-bold mb-4 text-gray-200">
                 Actividad Reciente
               </h3>
-              <ul className="space-y-4">
-                {actividades.length > 0 ? (
-                  actividades.map((mensaje, index) => (
-                    <li key={index} className="text-gray-300">
-                      {mensaje}
+              <div className="max-h-40 overflow-y-auto">
+                <ul className="space-y-4">
+                  {actividades.length > 0 ? (
+                    actividades.map((mensaje, index) => (
+                      <li key={index} className="text-gray-300">
+                        {mensaje}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-gray-500">
+                      No hay actividades recientes.
                     </li>
-                  ))
-                ) : (
-                  <li className="text-gray-500">
-                    No hay actividades recientes.
-                  </li>
-                )}
-              </ul>
+                  )}
+                </ul>
+              </div>
             </div>
           )}
         </main>
