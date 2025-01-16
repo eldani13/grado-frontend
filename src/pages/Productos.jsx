@@ -289,24 +289,50 @@ function Productos() {
     },
   });
 
+  const [themes, setThemes] = useState("");
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setThemes(savedTheme);
+    } else {
+      setThemes("light");
+    }
+  }, []);
+
+  const tableStyles =
+    themes === "dark"
+      ? {
+          backgroundColor: "#333333",
+          color: "#fff",
+          borderColor: "#555555",
+        }
+      : {
+          backgroundColor: "#ffffff",
+          color: "#000",
+          borderColor: "#cccccc",
+        };
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen flex flex-col bg-[#F5F5F3] dark:bg-gradient-to-tr dark:from-gray-900 dark:via-gray-800 dark:to-black text-white">
       <Nav />
       <div className="flex flex-1 pt-20">
         <NavBar />
         <main className="flex-1 p-8 overflow-auto ml-64">
           <div className="flex-1 pr-8">
-            <div className="flex items-center justify-between pb-8 border-b border-gray-700">
-              <h1 className="text-4xl font-extrabold text-white">Productos</h1>
+            <div className="flex items-center justify-between pb-8 border-b border-gray-300 dark:border-gray-700">
+              <h1 className="text-4xl font-extrabold text-black dark:text-white">
+                Productos
+              </h1>
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <MagnifyingGlassIcon className="absolute h-6 w-6 text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
+                  <MagnifyingGlassIcon className="absolute h-6 w-6  text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="Buscar productos..."
                     value={busqueda}
                     onChange={handleBusquedaChange}
-                    className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className="pl-10 pr-4 py-2 rounded-md bg-gray-300 text-black dark:bg-gray-800 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
 
@@ -321,24 +347,47 @@ function Productos() {
             </div>
 
             <ThemeProvider theme={theme}>
-              <div className="mt-8 flex space-x-8">
+              <div
+                className={`mt-8 flex space-x-8 bg-${
+                  theme === "dark" ? "gray-900" : ""
+                } text-${theme === "dark" ? "white" : "black"}`}
+              >
                 <div className="flex-1">
                   <Paper
                     className="p-4 bg-gray-800 rounded-lg"
-                    sx={{ height: 400, width: "100%" }}
+                    sx={{
+                      height: 400,
+                      width: "100%",
+                      backgroundColor: tableStyles.backgroundColor,
+                      borderColor: tableStyles.borderColor,
+                    }}
                   >
                     <DataGrid
                       rows={productosFiltrados}
                       columns={columns}
                       pageSize={5}
                       // checkboxSelection
+                      sx={{
+                        color: tableStyles.color,
+                        borderColor: tableStyles.borderColor,
+                        "& .MuiDataGrid-cell": {
+                          borderColor: tableStyles.borderColor,
+                        },
+                        "& .MuiDataGrid-columnHeaders": {
+                          backgroundColor:
+                            theme === "dark" ? "#444444" : "#f5f5f5",
+                          color: theme === "dark" ? "#fff" : "#fff",
+                        },
+                      }}
                     />
                   </Paper>
                 </div>
 
-                <div className="w-80 bg-gray-800 p-4 rounded-lg shadow-lg space-y-4">
-                  <h2 className="text-xl font-semibold">Estadísticas</h2>
-                  <div className="text-gray-400">
+                <div className="w-80 bg-[#979797] dark:bg-gray-800 p-4 rounded-lg shadow-lg space-y-4">
+                  <h2 className="text-xl font-semibold text-white">
+                    Estadísticas
+                  </h2>
+                  <div className="text-white dark:text-gray-400">
                     <p>
                       <strong>Total de productos:</strong>{" "}
                       {estadisticas.totalProductos}

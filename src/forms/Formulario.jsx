@@ -15,8 +15,8 @@ export default function Formulario() {
     fecha_reserva: "",
     fecha_inicio: "",
     fecha_fin: "",
-    categoria: "", // Agregar campo de categoría
-    producto: "", // Agregar campo de producto
+    categoria: "", 
+    producto: "", 
     cantidad: "",
   });
 
@@ -25,7 +25,15 @@ export default function Formulario() {
   const [mensaje, setMensaje] = useState(null);
   const [error, setError] = useState(null);
 
-  // Cargar las categorías desde la API
+  useEffect(() => {
+    const hoy = new Date();
+    const fechaActual = hoy.toISOString().split("T")[0]; 
+    setPedido((prevPedido) => ({
+      ...prevPedido,
+      fecha_reserva: fechaActual,
+    }));
+  }, []);
+
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
@@ -33,7 +41,7 @@ export default function Formulario() {
           `${API_BASE_URL}/api/inventario/categorias/`
         );
         const data = await response.json();
-        setCategorias(data); // Suponiendo que la respuesta es un array de categorías
+        setCategorias(data);
       } catch (err) {
         setError("Error al cargar las categorías");
       }
@@ -42,20 +50,21 @@ export default function Formulario() {
     fetchCategorias();
   }, []);
 
-
-
   useEffect(() => {
     const fetchProductos = async () => {
       if (pedido.categoria) {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/inventario/productos`);
+          const response = await fetch(
+            `${API_BASE_URL}/api/inventario/productos`
+          );
           const data = await response.json();
-  
+
           if (Array.isArray(data)) {
             const productosFiltrados = data.filter(
-              (producto) => producto.categoria === parseInt(pedido.categoria, 10)
+              (producto) =>
+                producto.categoria === parseInt(pedido.categoria, 10)
             );
-  
+
             // console.log("Productos filtrados:", productosFiltrados);
             setProductos(productosFiltrados);
           } else {
@@ -66,12 +75,9 @@ export default function Formulario() {
         }
       }
     };
-  
+
     fetchProductos();
   }, [pedido.categoria]);
-  
-  
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -80,6 +86,8 @@ export default function Formulario() {
       [name]: value,
     });
   };
+
+  const today = new Date().toISOString().split("T")[0];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,6 +132,8 @@ export default function Formulario() {
     }
   };
 
+  
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-900 to-black">
       <div className="w-full max-w-4xl p-8 bg-gray-900 bg-opacity-80 rounded-3xl shadow-2xl border border-gray-700">
@@ -150,12 +160,16 @@ export default function Formulario() {
                 Teléfono
               </label>
               <input
-                type="tel"
+                type="text"
                 name="telefono"
                 value={pedido.telefono}
-                onChange={handleChange}
+                onChange={(e) => {
+                  e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                  handleChange(e);
+                }}
                 className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                 required
+                maxLength={10}
               />
             </div>
             <div className="flex flex-col">
@@ -246,7 +260,6 @@ export default function Formulario() {
               </select>
             </div>
 
-            {/* Dropdown de productos */}
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-300">
                 Producto
@@ -269,20 +282,6 @@ export default function Formulario() {
             </div>
           </div>
 
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-300">
-              Cantidad
-            </label>
-            <input
-              type="number"
-              name="cantidad"
-              value={pedido.cantidad}
-              onChange={handleChange}
-              className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-              required
-            />
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-300">
@@ -298,17 +297,18 @@ export default function Formulario() {
             </div>
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-300">
-                Fecha de Reserva
+                Cantidad
               </label>
               <input
-                type="date"
-                name="fecha_reserva"
-                value={pedido.fecha_reserva}
+                type="number"
+                name="cantidad"
+                value={pedido.cantidad}
                 onChange={handleChange}
                 className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                 required
               />
             </div>
+
             <div className="flex flex-col">
               <label className="text-sm font-medium text-gray-300">
                 Fecha de Inicio
@@ -320,6 +320,7 @@ export default function Formulario() {
                 onChange={handleChange}
                 className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                 required
+                min={today}
               />
             </div>
             <div className="flex flex-col">
@@ -333,6 +334,21 @@ export default function Formulario() {
                 onChange={handleChange}
                 className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                 required
+                min={today}
+              />
+            </div>
+            <div className="flex flex-col">
+              {/* <label className="text-sm font-medium text-gray-300">
+                Fecha de Reserva
+              </label> */}
+              <input
+                type="date"
+                name="fecha_reserva"
+                value={pedido.fecha_reserva}
+                onChange={handleChange}
+                hidden
+                className="mt-2 p-3 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                // required
               />
             </div>
           </div>

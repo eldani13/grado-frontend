@@ -169,7 +169,7 @@ function Factura() {
   const terminarPedido = async () => {
     try {
       if (isManualFactura) {
-        return; 
+        return;
       }
 
       if (!selectedPedido) {
@@ -185,8 +185,7 @@ function Factura() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-          }),
+          body: JSON.stringify({}),
         }
       );
 
@@ -324,27 +323,29 @@ function Factura() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen flex flex-col bg-[#F5F5F3] dark:bg-gradient-to-tr dark:from-gray-900 dark:via-gray-800 dark:to-black text-white">
       <Nav />
       <div className="flex flex-1 pt-20">
         <NavBar />
         <main className="flex-1 p-8 overflow-auto ml-64">
-          <div className="flex items-center justify-between pb-8 border-b border-gray-700">
-            <h1 className="text-4xl font-extrabold text-white">Factura</h1>
+          <div className="flex items-center justify-between pb-8 border-b border-gray-300 dark:border-gray-700">
+            <h1 className="text-4xl font-extrabold text-black dark:text-white">
+              Factura
+            </h1>
             <div className="relative">
               <div className="flex items-center gap-4">
                 <MagnifyingGlassIcon className="absolute h-6 w-6 text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Buscar factura..."
-                  className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="pl-10 pr-4 py-2 rounded-md bg-gray-300 text-black dark:bg-gray-800 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   value={searchTerm}
                   onChange={handleSearchChange}
                 />
                 <button
                   onClick={() => {
                     setModalOpen(true);
-                    setIsManualFactura(true); 
+                    setIsManualFactura(true);
                   }}
                   className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                 >
@@ -355,7 +356,7 @@ function Factura() {
                 <button
                   onClick={() => {
                     setAutoFacturaModalOpen(true);
-                    setIsManualFactura(false); 
+                    setIsManualFactura(false);
                   }}
                   className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition"
                 >
@@ -369,53 +370,96 @@ function Factura() {
           <table className="w-full text-left border-collapse mt-8">
             <thead>
               <tr>
-                <th className="border-b border-gray-700 py-2 px-4">Factura</th>
-                <th className="border-b border-gray-700 py-2 px-4">Equipo</th>
-                <th className="border-b border-gray-700 py-2 px-4">
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
+                  Factura
+                </th>
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
+                  Equipo
+                </th>
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
                   Referencia
                 </th>
-                <th className="border-b border-gray-700 py-2 px-4">Marca</th>
-                <th className="border-b border-gray-700 py-2 px-4">Serial</th>
-                <th className="border-b border-gray-700 py-2 px-4">Cantidad</th>
-                <th className="border-b border-gray-700 py-2 px-4">
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
+                  Marca
+                </th>
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
+                  Serial
+                </th>
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
+                  Cantidad
+                </th>
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
                   Descripcion
                 </th>
-                <th className="border-b border-gray-700 py-2 px-4">
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
                   Fecha Entrada
                 </th>
-                <th className="border-b border-gray-700 py-2 px-4">
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
                   Fecha Salida
                 </th>
-                <th className="border-b border-gray-700 py-2 px-4">Estado</th>
-                <th className="border-b border-gray-700 py-2 px-4">
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
+                  Estado
+                </th>
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
                   Observacion
                 </th>
                 {/* <th className="border-b border-gray-700 py-2 px-4">Poliza</th> */}
-                <th className="border-b border-gray-700 py-2 px-4">
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
                   Precio Unidad
                 </th>
-                <th className="border-b border-gray-700 py-2 px-4">
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
                   Precio Total
                 </th>
-                <th className="border-b border-gray-700 py-2 px-4">PDF</th>
+                <th className="border-b text-black dark:text-white border-gray-700 py-2 px-4">
+                  PDF
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredFacturas.map((factura, index) => (
-                <tr key={index} className="hover:bg-gray-800">
-                  <td className="py-2 px-4">{factura.numero_factura}</td>
-                  <td className="py-2 px-4">{factura.equipo}</td>
-                  <td className="py-2 px-4">{factura.referencia}</td>
-                  <td className="py-2 px-4">{factura.marca}</td>
-                  <td className="py-2 px-4">{factura.serial}</td>
-                  <td className="py-2 px-4">{factura.cantidad}</td>
-                  <td className="py-2 px-4">{factura.descripcion}</td>
-                  <td className="py-2 px-4">{factura.fecha_entrada}</td>
-                  <td className="py-2 px-4">{factura.fecha_salida}</td>
-                  <td className="py-2 px-4">{factura.estado}</td>
-                  <td className="py-2 px-4">{factura.observaciones}</td>
-                  <td className="py-2 px-4">${factura.valor}</td>
-                  <td className="py-2 px-4">${factura.total}</td>
+                <tr
+                  key={index}
+                  className="hover:bg-gray-300 dark:hover:bg-gray-800"
+                >
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.numero_factura}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.equipo}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.referencia}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.marca}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.serial}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.cantidad}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.descripcion}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.fecha_entrada}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.fecha_salida}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.estado}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    {factura.observaciones}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    ${factura.valor}
+                  </td>
+                  <td className="py-2 px-4 text-black dark:text-white">
+                    ${factura.total}
+                  </td>
                   <td className="py-2 px-4">
                     <button
                       onClick={() => generarFacturaPDF(factura)}

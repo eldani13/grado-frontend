@@ -33,6 +33,7 @@ function Home() {
   const [labelsFiltrados, setLabelsFiltrados] = useState([]);
   const [dataFiltrada, setDataFiltrada] = useState([]);
   const [pedidosPendientes, setPedidosPendientes] = useState(0);
+  const [theme, setTheme] = useState("");
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -99,9 +100,7 @@ function Home() {
               actividad.valor_total || "0"
             }.`;
           case "reporte":
-            return ` ${
-              actividad.descripcion || "desconocido"
-            }.`;
+            return ` ${actividad.descripcion || "desconocido"}.`;
           case "producto":
             return `Se creo un nuevo producto: ${
               actividad.equipo || "desconocida"
@@ -126,14 +125,14 @@ function Home() {
       if (!response.ok) throw new Error("Error al obtener el resumen");
 
       const data = await response.json();
-      // console.log("Datos del resumen:", data); 
+      // console.log("Datos del resumen:", data);
 
       const resumen = data.datos || {};
       setVentasTotales(resumen.ventas_totales || 0);
       setTotalDelDia(resumen.total_del_dia || 0);
 
       const ventasCompletas = resumen.ventas_diarias || Array(7).fill(0);
-      // console.log("Ventas completas:", ventasCompletas); 
+      // console.log("Ventas completas:", ventasCompletas);
 
       setVentasDiarias(ventasCompletas);
       setLabelsFiltrados([
@@ -169,41 +168,61 @@ function Home() {
       "Domingo",
     ];
 
-    const diaActual = new Date().getDay(); 
+    const diaActual = new Date().getDay();
     const ultimoDiaGuardado = localStorage.getItem("ultimoDiaGuardado");
 
     if (ultimoDiaGuardado !== `${diaActual}`) {
       localStorage.setItem("ultimoDiaGuardado", `${diaActual}`);
-      setVentasDiarias(Array(7).fill(0)); 
+      setVentasDiarias(Array(7).fill(0));
       setLabelsFiltrados(diasSemana);
     } else {
       const ventasCompletas = diasSemana.map((_, index) => {
         if (index === diaActual) {
-          return totalDelDia || 0; 
+          return totalDelDia || 0;
         }
-        return ventasDiarias[index] || 0; 
+        return ventasDiarias[index] || 0;
       });
 
       setLabelsFiltrados(diasSemana);
-      setDataFiltrada(ventasCompletas); 
+      setDataFiltrada(ventasCompletas);
     }
-  }, [ventasDiarias, totalDelDia]); 
+  }, [ventasDiarias, totalDelDia]);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      setTheme("light");
+    }
+  }, []);
+
+  const chartColors =
+    theme === "dark"
+      ? {
+          backgroundColor: "rgba(75, 192, 192, 0.6)",
+          borderColor: "rgba(75, 192, 192, 1)",
+        }
+      : {
+          backgroundColor: "rgba(75, 192, 192, 0.3)",
+          borderColor: "rgba(75, 192, 192, 0.8)",
+        };
 
   const data = {
     labels: labelsFiltrados,
     datasets: [
       {
         label: "Ventas Diarias ($)",
-        data: dataFiltrada, 
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        data: dataFiltrada,
+        backgroundColor: chartColors.backgroundColor,
+        borderColor: chartColors.borderColor,
         borderWidth: 1,
       },
     ],
   };
 
-  // console.log("Ventas Diarias:", ventasDiarias); 
-  // console.log("Labels Filtrados:", labelsFiltrados); 
+  // console.log("Ventas Diarias:", ventasDiarias);
+  // console.log("Labels Filtrados:", labelsFiltrados);
 
   const options = {
     responsive: true,
@@ -226,7 +245,7 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen flex flex-col bg-[#F5F5F3] text-black dark:bg-gradient-to-tr dark:from-gray-900 dark:via-gray-800 dark:to-black dark:text-white">
       <Nav />
 
       <div className="flex flex-1 pt-20">
@@ -236,13 +255,13 @@ function Home() {
             <h2 className="text-4xl font-extrabold">Resumen</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            <div className="p-6 bg-gradient-to-br from-purple-800 to-blue-900 rounded-xl shadow-xl">
+            <div className="p-6 bg-[#979797] dark:bg-gradient-to-br dark:from-purple-800 dark:to-blue-900 rounded-xl shadow-xl">
               <h3 className="text-sm font-semibold text-gray-300">
                 Productos Totales
               </h3>
               <p className="text-3xl font-bold text-white">{totalProductos}</p>
             </div>
-            <div className="p-6 bg-gradient-to-br from-blue-800 to-purple-900 rounded-xl shadow-xl">
+            <div className="p-6 bg-[#979797] dark:bg-gradient-to-br dark:from-blue-800 dark:to-purple-900 rounded-xl shadow-xl">
               <h3 className="text-sm font-semibold text-gray-300">
                 Categorías
               </h3>
@@ -284,25 +303,29 @@ function Home() {
             </div>
           </div>
 
-          <div className="mt-8 bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-xl shadow-xl">
-            <h3 className="text-xl font-bold mb-4 text-gray-200">
+          <div className="mt-8 bg-[#979797] dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 p-8 rounded-xl shadow-xl">
+            <h3 className="text-xl font-bold mb-4 text-white">
               Gráfica de Ventas
             </h3>
-            <div className="h-64 bg-gray-700 rounded-lg">
+            <div
+              className={`h-64 bg-gray-700 rounded-lg bg-${
+                theme === "dark" ? "gray-900" : "white"
+              } text-${theme === "dark" ? "white" : "black"}`}
+            >
               <Bar data={data} options={options} />
             </div>
           </div>
 
           {userRole !== "cliente" && (
-            <div className="mt-8 bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-xl shadow-xl">
-              <h3 className="text-xl font-bold mb-4 text-gray-200">
+            <div className="mt-8 bg-[#979797] dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 p-8 rounded-xl shadow-xl">
+              <h3 className="text-xl font-bold mb-4 text-white">
                 Actividad Reciente
               </h3>
               <div className="max-h-40 overflow-y-auto">
                 <ul className="space-y-4">
                   {actividades.length > 0 ? (
                     actividades.map((mensaje, index) => (
-                      <li key={index} className="text-gray-300">
+                      <li key={index} className="text-white">
                         {mensaje}
                       </li>
                     ))
