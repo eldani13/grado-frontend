@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
 import Nav from "../components/Nav";
-import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/outline";
+import {
+  MagnifyingGlassIcon,
+  PlusIcon,
+  PhoneIcon,
+  ChatBubbleLeftIcon,
+  ChartBarIcon,
+} from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import { Paper, Button, ThemeProvider, createTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
+import { WhatsApp, LocationOn, Email } from "@mui/icons-material";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -28,6 +35,9 @@ function Pedidos() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPedido, setSelectedPedido] = useState(null);
   const closeModal = () => setSelectedPedido(null);
+
+  const telefono = selectedPedido ? selectedPedido.telefono : null;
+  const whatsappLink = telefono ? `https://wa.me/${telefono}` : "#";
 
   const fetchPedidos = async () => {
     try {
@@ -164,15 +174,47 @@ function Pedidos() {
     }
   };
 
+  const theme = createTheme({
+    palette: {
+      mode: "dark",
+    },
+  });
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setThemes(savedTheme);
+    } else {
+      setThemes("light");
+    }
+  }, []);
+
+  const [themes, setThemes] = useState("");
+
+  const tableStyles =
+    themes === "dark"
+      ? {
+          backgroundColor: "#333333",
+          color: "#fff",
+          borderColor: "#555555",
+        }
+      : {
+          backgroundColor: "#ffffff",
+          color: "#000",
+          borderColor: "#cccccc",
+        };
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-tr from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen flex flex-col bg-[#F5F5F3] dark:bg-gradient-to-tr dark:from-gray-900 dark:via-gray-800 dark:to-black text-white">
       <Nav />
 
       <div className="flex flex-1 pt-20">
         <NavBar />
         <main className="flex-1 p-8 overflow-auto ml-64">
-          <div className="flex items-center justify-between pb-8 border-b border-gray-700">
-            <h1 className="text-4xl font-extrabold text-white">Pedidos</h1>
+          <div className="flex items-center justify-between pb-8 border-b border-gray-300 dark:border-gray-700">
+            <h1 className="text-4xl font-extrabold text-black dark:text-white">
+              Pedidos
+            </h1>
             <div className="flex items-center gap-4">
               <div className="relative">
                 <MagnifyingGlassIcon className="absolute h-6 w-6 text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
@@ -181,7 +223,7 @@ function Pedidos() {
                   placeholder="Buscar pedidos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="pl-10 pr-4 py-2 rounded-md bg-gray-300 text-black dark:bg-gray-800 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
               </div>
               <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
@@ -194,7 +236,16 @@ function Pedidos() {
           <div className="mt-8">
             {filteredPedidos.length > 0 ? (
               <ThemeProvider theme={theme}>
-                <Paper elevation={3} className="p-4 bg-gray-800 rounded-lg">
+                <Paper
+                  elevation={3}
+                  className="p-4 bg-gray-800 rounded-lg"
+                  sx={{
+                    height: 430,
+                    width: "100%",
+                    backgroundColor: tableStyles.backgroundColor,
+                    borderColor: tableStyles.borderColor,
+                  }}
+                >
                   <div style={{ height: 400, width: "100%" }}>
                     <DataGrid
                       rows={filteredPedidos}
@@ -202,6 +253,19 @@ function Pedidos() {
                       pageSize={5}
                       rowsPerPageOptions={[5]}
                       disableSelectionOnClick
+                      sx={{
+                        backgroundColor: tableStyles.backgroundColor,
+                        color: tableStyles.color,
+                        borderColor: tableStyles.borderColor,
+                        "& .MuiDataGrid-columnHeaders": {
+                          backgroundColor:
+                            themes === "dark" ? "#444444" : "#f5f5f5",
+                          color: themes === "dark" ? "#fff" : "#fff",
+                        },
+                        "& .MuiDataGrid-cell": {
+                          borderColor: tableStyles.borderColor,
+                        },
+                      }}
                     />
                   </div>
                 </Paper>
@@ -243,17 +307,42 @@ function Pedidos() {
                         <span className="font-bold text-black">Nombre:</span>{" "}
                         {selectedPedido.nombre_cliente}
                       </p>
-                      <p className="text-sm font-semibold text-gray-700">
+                      <p className="text-sm font-semibold text-gray-700 flex items-center gap-1">
                         <span className="font-bold text-black">Teléfono:</span>{" "}
                         {selectedPedido.telefono}
+                        <a
+                          href={whatsappLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-2 flex items-center text-green-500 hover:text-green-700"
+                        >
+                          <WhatsApp className="h-5 w-5" />
+                        </a>
                       </p>
-                      <p className="text-sm font-semibold text-gray-700">
+                      <p className="text-sm font-semibold text-gray-700 flex gap-1">
                         <span className="font-bold text-black">Correo:</span>{" "}
                         {selectedPedido.correo}
+                        <a
+                          href={`mailto:${selectedPedido.correo}`}
+                          className="ml-2 text-blue-500 hover:text-blue-700 flex items-center"
+                        >
+                          <Email className="h-5 w-5" />
+                        </a>
                       </p>
-                      <p className="text-sm font-semibold text-gray-700">
+
+                      <p className="text-sm font-semibold text-gray-700 flex items-center gap-1">
                         <span className="font-bold text-black">Dirección:</span>{" "}
                         {selectedPedido.direccion}
+                        <a
+                          href={`https://www.google.com/maps?q=${encodeURIComponent(
+                            selectedPedido.direccion
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-2 text-red-500 hover:text-red-700"
+                        >
+                          <LocationOn className="h-5 w-5" />
+                        </a>
                       </p>
                     </div>
                     <div className="flex flex-col space-y-2">
@@ -275,7 +364,7 @@ function Pedidos() {
                         <span className="font-bold text-black">
                           Descripción:
                         </span>{" "}
-                        {selectedPedido.descripcion_reserva}
+                        {selectedPedido.descripcion}
                       </p>
                     </div>
                   </div>

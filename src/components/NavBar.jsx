@@ -8,7 +8,8 @@ import {
   BanknotesIcon,
   ShoppingCartIcon,
   CogIcon,
-  TruckIcon 
+  TruckIcon,
+  BuildingLibraryIcon
 } from "@heroicons/react/24/outline";
 
 export default function NavBar() {
@@ -26,6 +27,7 @@ export default function NavBar() {
     ],
     admin: [
       { name: "Dashboard", icon: <HomeIcon className="h-6 w-6" />, path: "/home" },
+      { name: "Compras", icon: <BuildingLibraryIcon className="h-6 w-6"/>, path: "/compras"},
       { name: "Categorías", icon: <FolderIcon className="h-6 w-6" />, path: "/categorias" },
       { name: "Productos", icon: <ClipboardDocumentListIcon className="h-6 w-6" />, path: "/productos" },
       { name: "Pedidos", icon: <ShoppingCartIcon className="h-6 w-6" />, path: "/pedidos" },
@@ -40,7 +42,7 @@ export default function NavBar() {
   const menuItems = menuItemsByRole[userRole] || [];
 
   return (
-    <aside className="fixed top-0 left-0 w-64 h-screen bg-gradient-to-tr from-gray-900 via-gray-800 to-gray-700 shadow-lg overflow-hidden">
+    <aside className="fixed top-0 left-0 w-64 h-screen bg-[#F5F5F3] dark:bg-gradient-to-tr dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 shadow-lg overflow-hidden">
       <ul className="space-y-2 mt-28 overflow-y-auto">
         {menuItems.map((item) => (
           <li key={item.name}>
@@ -49,7 +51,7 @@ export default function NavBar() {
               className={`group flex items-center gap-4 text-lg font-medium cursor-pointer p-3 rounded-md transition-all duration-300 ${
                 location.pathname === item.path
                   ? "bg-blue-600 text-white shadow-md"
-                  : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                  : "text-black dark:text-gray-300 hover:bg-gray-800 hover:text-white"
               }`}
             >
               <div
