@@ -265,7 +265,9 @@ function Factura() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(nuevaFactura),
+        
       });
+      console.log("Factura a enviar:", JSON.stringify(nuevaFactura, null, 2));
 
       if (!response.ok) {
         const errorData = await response.json();
