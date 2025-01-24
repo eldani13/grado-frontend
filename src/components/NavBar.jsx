@@ -8,7 +8,8 @@ import {
   BanknotesIcon,
   ShoppingCartIcon,
   CogIcon,
-  TruckIcon 
+  TruckIcon,
+  BuildingLibraryIcon
 } from "@heroicons/react/24/outline";
 
 export default function NavBar() {
@@ -26,6 +27,7 @@ export default function NavBar() {
     ],
     admin: [
       { name: "Dashboard", icon: <HomeIcon className="h-6 w-6" />, path: "/home" },
+      { name: "Compras", icon: <BuildingLibraryIcon className="h-6 w-6"/>, path: "/compras"},
       { name: "Categorías", icon: <FolderIcon className="h-6 w-6" />, path: "/categorias" },
       { name: "Productos", icon: <ClipboardDocumentListIcon className="h-6 w-6" />, path: "/productos" },
       { name: "Pedidos", icon: <ShoppingCartIcon className="h-6 w-6" />, path: "/pedidos" },

@@ -12,6 +12,7 @@ import Pedidos from './pages/Pedidos';
 import Formulario from './forms/Formulario';
 import Despacho from './pages/Despacho';
 import Proceso from './pages/Proceso'; 
+import Ventas from "./pages/Ventas";
 
 function App() {
 
@@ -59,6 +60,7 @@ function App() {
         <Route path="/pedidos" element={<Pedidos pedidos={pedidosEnProceso} />} /> 
         <Route path="/despacho" element={<Despacho pedidos={pedidosTerminados} />} />
         <Route path="/proceso" element={<Proceso pedidos={pedidosEnProceso} />} /> 
+        <Route path="/compras" element={<Ventas />} /> 
       </Routes>
     </Router>
   );
