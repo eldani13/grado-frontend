@@ -549,19 +549,29 @@ function Ventas() {
                       </div>
                     </div>
 
-                    <div className="mt-8 flex justify-end gap-4">
-                      <button
-                        onClick={closeModal}
-                        className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 focus:ring focus:ring-gray-200"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={submitInvoice}
-                        className="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 focus:ring focus:ring-green-300"
-                      >
-                        Guardar Factura
-                      </button>
+                    <div className="mt-8 flex justify-between gap-4">
+                      <div>
+                        <button
+                          onClick={addProductToInvoice}
+                          className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 focus:ring focus:ring-blue-300"
+                        >
+                          Agregar producto
+                        </button>
+                      </div>
+                      <div className="flex gap-4">
+                        <button
+                          onClick={closeModal}
+                          className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 focus:ring focus:ring-gray-200"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          onClick={submitInvoice}
+                          className="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 focus:ring focus:ring-green-300"
+                        >
+                          Guardar Factura
+                        </button>
+                      </div>
                     </div>
                   </DialogPanel>
                 </div>
